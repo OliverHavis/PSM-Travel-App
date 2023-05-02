@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">PSM</string>
+    <string name="title_activity_flight_planner">FlightPlannerActivity</string>
 </resources>

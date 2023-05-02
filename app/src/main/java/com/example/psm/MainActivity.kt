@@ -1,46 +1,40 @@
 package com.example.psm
 
+import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.psm.ui.theme.PSMTheme
+import androidx.constraintlayout.widget.ConstraintLayout
+
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            PSMTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
-            }
+        setContentView(R.layout.activity_home)
+
+        hideStatusBar()
+
+        // on click listener
+        val btn = findViewById<ConstraintLayout>(R.id.homeView)
+        btn.setOnClickListener {
+            val intent = Intent(this, FlightPlannerActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top)
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    private fun hideStatusBar() {
+        val window = window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        window.statusBarColor = Color.TRANSPARENT
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PSMTheme {
-        Greeting("Android")
+        val w = getWindow()
+        w.setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
     }
 }
