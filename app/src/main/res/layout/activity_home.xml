@@ -112,7 +112,7 @@
         android:layout_marginTop="25dp"
         android:text="Welcome"
         android:textColor="@color/white"
-        android:textSize="25dp"
+        android:textSize="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
@@ -122,22 +122,23 @@
         android:shadowRadius="2"/>
 
     <!--  Username  -->
-<!--    <TextView-->
-<!--        android:id="@+id/display_name"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="-15dp"-->
-<!--        android:text="Oliver"-->
-<!--        android:textColor="@color/white"-->
-<!--        android:textSize="80sp"-->
-<!--        android:textStyle="bold"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/welcome_text"-->
-<!--        android:shadowColor="#68000000"-->
-<!--        android:shadowDx="15"-->
-<!--        android:shadowDy="15"-->
-<!--        android:shadowRadius="2" />-->
+    <TextView
+        android:id="@+id/display_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-15dp"
+        android:text="Oliver"
+        android:textColor="@color/white"
+        android:textSize="80sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/welcome_text"
+        android:shadowColor="#68000000"
+        android:shadowDx="15"
+        android:shadowDy="15"
+        android:visibility="gone"
+        android:shadowRadius="2" />
 
     <!--  login Text  -->
     <TextView
@@ -148,25 +149,27 @@
         android:text="login to view your bookings"
         android:textColor="@color/white"
         android:textAlignment="center"
-        android:textSize="25dp"
+        android:textSize="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/welcome_text"
         android:shadowColor="#A1000000"
         android:shadowDx="15"
         android:shadowDy="15"
+        android:visibility="gone"
         android:shadowRadius="2"/>
 
     <!--  Login Button  -->
     <Button
         android:id="@+id/login_button"
-        android:layout_width="250dp"
+        android:layout_width="200dp"
         android:layout_height="65dp"
         android:layout_marginTop="10dp"
         android:background="@drawable/rounded_button"
         android:text="Login"
         android:textAllCaps="false"
         android:textSize="25dp"
+        android:visibility="gone"
         android:textColor="@color/dark_blue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
