@@ -33,11 +33,12 @@ class FirebaseHelper {
             val document = firestore.collection("Users").document(firebaseUser.uid).get().await()
             if (document.exists()) {
                 User(
-                    document.getString("uid")!!,
-                    document.getString("first_name")!!,
-                    document.getString("last_name")!!,
-                    document.getString("email")!!,
-                    document.getString("phone")!!
+                    document.getString("uid") ?: "",
+                    document.getString("first_name") ?: "",
+                    document.getString("last_name") ?: "",
+                    document.getString("email") ?: "",
+                    document.getString("phone") ?: "",
+                    document.getString("address") ?: ""
                 )
             } else {
                 null
@@ -123,6 +124,56 @@ class FirebaseHelper {
                 } else {
                     Log.w(TAG, "signInWithEmail:failure", task.exception)
                     onFailure()
+                }
+            }
+    }
+
+    /**
+     * Update the user data in the database.
+     *
+     * @param user The user object.
+     * @param onSuccess A function to be called when the user data is successfully updated.
+     * @param onFailure A function to be called when the user data update fails.
+     */
+    fun updateUser(
+        user: User,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit)
+    {
+        firestore.collection("Users").document(user.uid)
+            .set(user)
+            .addOnSuccessListener {
+                Log.d(ContentValues.TAG, "DocumentSnapshot successfully written!")
+                println("DocumentSnapshot successfully written!")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.w(ContentValues.TAG, "Error writing document", e)
+                println("Error writing document: $e")
+                onFailure(e)
+            }
+    }
+
+    /**
+     * Updates the user's Auth profile.
+     *
+     * @param user The user object.
+     * @param onSuccess A function to be called when the user data is successfully updated.
+     * @param onFailure A function to be called when the user data update fails.
+     */
+    fun updateAuthProfile(
+        user: User,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        auth.currentUser!!.updateEmail(user.email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d(TAG, "User email address updated.")
+                    updateUser(user, onSuccess, onFailure)
+                } else {
+                    Log.w(TAG, "Error updating user email address.", task.exception)
+                    onFailure(task.exception!!)
                 }
             }
     }

@@ -13,15 +13,15 @@
         android:theme="@style/Theme.PSM"
         tools:targetApi="31">
         <activity
+            android:name=".MyProfileActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:exported="false" />
+        <activity
             android:name=".RegisterActivity"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"
-            android:exported="false" /> <!-- <activity -->
-        <!-- android:name=".FlightPlannerActivity" -->
-        <!-- android:exported="false" -->
-        <!-- android:label="@string/title_activity_flight_planner" -->
-        <!-- android:theme="@style/Theme.PSM" /> -->
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -200,11 +200,14 @@ class MainActivity : ComponentActivity() {
     private fun updateUI(currentUser: User?) {
         if (currentUser != null) {
             user = currentUser
+            login_text.visibility = View.INVISIBLE
+            loginBtn.visibility = View.INVISIBLE
             display_name.visibility = View.VISIBLE
             display_name.text = currentUser.first_name
         } else {
             login_text.visibility = View.VISIBLE
             loginBtn.visibility = View.VISIBLE
+            display_name.visibility = View.INVISIBLE
         }
     }
 
@@ -242,6 +245,25 @@ class MainActivity : ComponentActivity() {
             isHandburgerMenuOpen = !isHandburgerMenuOpen
         }
 
+        /**
+         * Goes to the My Profile activity.
+         * If the user is not logged in, it will go to the login activity.
+         *
+         * @see LoginActivity
+         * @see MyProfileActivity
+         */
+        myProfileBtn.setOnClickListener {
+            if (user.email != "") {
+                val intent = Intent(this, MyProfileActivity::class.java)
+                startActivity(intent)
+                overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top)
+            } else {
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+                overridePendingTransition(R.anim.slide_in_top, R.anim.slide_out_bottom)
+            }
+        }
+
         // Search bar Listeners
         /**
          * Opens/Closes the search bar.
@@ -266,5 +288,10 @@ class MainActivity : ComponentActivity() {
             startActivity(intent)
             overridePendingTransition(R.anim.slide_in_top, R.anim.slide_out_bottom)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setupUI()
     }
 }

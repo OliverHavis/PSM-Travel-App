@@ -10,4 +10,41 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+
+    <!--  Make me a string array of country  -->
+    <string-array name="country_names">
+        <item>Please Select</item>
+        <item>United States</item>
+        <item>Canada</item>
+        <item>Mexico</item>
+        <item>Brazil</item>
+        <item>United Kingdom</item>
+        <item>France</item>
+        <item>Germany</item>
+        <item>Italy</item>
+        <item>Spain</item>
+        <item>Netherlands</item>
+        <item>Belgium</item>
+        <item>Sweden</item>
+        <item>Switzerland</item>
+        <item>Russia</item>
+        <item>China</item>
+        <item>Japan</item>
+        <item>South Korea</item>
+        <item>India</item>
+        <item>Australia</item>
+        <item>New Zealand</item>
+        <item>South Africa</item>
+        <item>Egypt</item>
+        <item>Turkey</item>
+        <item>Saudi Arabia</item>
+        <item>United Arab Emirates</item>
+        <item>Israel</item>
+        <item>Iran</item>
+        <item>Singapore</item>
+        <item>Indonesia</item>
+        <item>Malaysia</item>
+        <item>Thailand</item>
+        <item>Argentina</item>
+    </string-array>
 </resources>

@@ -129,7 +129,7 @@
         android:layout_marginTop="-15dp"
         android:text="Oliver"
         android:textColor="@color/white"
-        android:textSize="80sp"
+        android:textSize="75sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
