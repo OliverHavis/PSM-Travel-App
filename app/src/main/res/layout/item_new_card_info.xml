@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/dashed_border"
+    android:layout_margin="4dp"
+    android:padding="12dp">
+
+    <FrameLayout
+        android:id="@+id/newscard_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/new_card_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="New Card..."
+            android:textSize="25sp" />
+
+    </FrameLayout>
+
+    <ImageButton
+        android:id="@+id/card_info_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#00F9AA7C"
+        android:src="@drawable/ic_add" />
+
+</LinearLayout>

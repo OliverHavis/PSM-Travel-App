@@ -10,6 +10,9 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+    <string name="placeholder_card_date">10/29</string>
+    <string name="placeholder_card_name">John Doe</string>
+    <string name="placeholder_card_number">**** **** **** 1234</string>
 
     <!--  Make me a string array of country  -->
     <string-array name="country_names">

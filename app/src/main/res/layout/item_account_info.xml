@@ -139,6 +139,39 @@
         </LinearLayout>
 
 
+        <!--   Profile Pic Container     -->
+        <LinearLayout
+            android:id="@+id/account_info_edit_container_profile_pic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:paddingTop="25dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/profile_picture_image_view"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:src="@drawable/beach_background"
+                android:scaleType="centerCrop" />
+
+            <Button
+                android:id="@+id/upload_picture_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Upload Picture" />
+
+            <Button
+                android:id="@+id/capture_picture_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Capture Picture" />
+
+
+        </LinearLayout>
+
+
     </FrameLayout>
 
     <ImageButton

@@ -31,6 +31,19 @@ class LoginActivity : AppCompatActivity() {
             val email = emailInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
 
+            // validate emails and password to make sure they are not empty
+            if (email.isEmpty()) {
+                emailInput.error = "Email is required"
+                emailInput.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (password.isEmpty()) {
+                passwordInput.error = "Password is required"
+                passwordInput.requestFocus()
+                return@setOnClickListener
+            }
+
             db.signIn(
                 email = email,
                 password = password,

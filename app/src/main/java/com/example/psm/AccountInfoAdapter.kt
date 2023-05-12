@@ -50,23 +50,24 @@ class AccountInfoAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
         holder.accountInfoText.text = accountInfoList[position]
         holder.accountInfoEdit.setOnClickListener {
             val editContainer: LinearLayout
             when (position) {
+                // Update Name
                 0 -> {
                     editContainer = holder.itemView.findViewById(R.id.edit_name_container)
                     editContainer.findViewById<EditText>(R.id.account_info_edit_first_name).hint = "First Name:"
-                    editContainer.findViewById<EditText>(R.id.account_info_edit_first_name).setText(user.first_name)
+                    editContainer.findViewById<EditText>(R.id.account_info_edit_first_name).setText(user.getFirstName())
                     editContainer.findViewById<EditText>(R.id.account_info_edit_last_name).hint = "Last Name:"
-                    editContainer.findViewById<EditText>(R.id.account_info_edit_last_name).setText(user.last_name)
+                    editContainer.findViewById<EditText>(R.id.account_info_edit_last_name).setText(user.getLastName())
 
                     editContainer.findViewById<Button>(R.id.save_name_button).setOnClickListener() {
                         val firstName = editContainer.findViewById<EditText>(R.id.account_info_edit_first_name).text.toString()
                         val lastName = editContainer.findViewById<EditText>(R.id.account_info_edit_last_name).text.toString()
-                        user.updateField("first_name", firstName)
-                        user.updateField("last_name", lastName)
+                        user.setFirstName(firstName)
+                        user.setLastName(lastName)
+
                         db.updateUser(
                             user,
                             onSuccess = {
@@ -87,6 +88,7 @@ class AccountInfoAdapter(
 
                     }
                 }
+                //  Update Address
                 3 -> {
                     editContainer = holder.itemView.findViewById(R.id.account_info_edit_container_address)
 
@@ -125,23 +127,57 @@ class AccountInfoAdapter(
                     val index = adapter.getPosition(country)
                     // set spinner to country
                     spinner.setSelection(index)
+
+                    editContainer.findViewById<Button>(R.id.save_address_button).setOnClickListener() {
+                        val street = editContainer.findViewById<EditText>(R.id.street_edit_text).text.toString().trim()
+                        val city = editContainer.findViewById<EditText>(R.id.city_edit_text).text.toString().trim()
+                        val state = editContainer.findViewById<EditText>(R.id.state_edit_text).text.toString().trim()
+                        val zip = editContainer.findViewById<EditText>(R.id.zip_edit_text).text.toString().trim()
+                        var country = spinner.selectedItem.toString().trim()
+
+                        if (country == "Please Select") {
+                            country = ""
+                        }
+
+                        user.setAddress(street, city, state, country, zip)
+
+                        db.updateUser(
+                            user,
+                            onSuccess = {
+                                editContainer.visibility = View.GONE
+                                holder.accountInfoText.visibility = View.VISIBLE
+                                Toast.makeText(context, "Successfully updated user", Toast.LENGTH_SHORT).show()
+                                val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                                imm.hideSoftInputFromWindow(editContainer.windowToken, 0)
+
+                                onDataChangedListener?.onDataChanged()
+                            },
+                            onFailure = {
+                                println("Failed to update user")
+                                Log.e("AccountInfoAdapter", "Failed to update user")
+                                Toast.makeText(context, "Failed to update user", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+
+                    }
                 }
+                // Update Email or Phone
                 else -> {
                     editContainer = holder.itemView.findViewById(R.id.account_info_edit_container)
                     editContainer.findViewById<EditText>(R.id.account_info_edit_field).hint = accountInfoList[position]
 
                     if (accountInfoList[position].contains("Email")) {
-                        editContainer.findViewById<EditText>(R.id.account_info_edit_field).setText(user.email)
+                        editContainer.findViewById<EditText>(R.id.account_info_edit_field).setText(user.getEmail())
                     } else if (accountInfoList[position].contains("Phone")) {
-                        editContainer.findViewById<EditText>(R.id.account_info_edit_field).setText(user.phone)
+                        editContainer.findViewById<EditText>(R.id.account_info_edit_field).setText(user.getPhone())
                     }
 
                     editContainer.findViewById<Button>(R.id.save_button).setOnClickListener() {
                         val field = editContainer.findViewById<EditText>(R.id.account_info_edit_field).text.toString()
                         if (accountInfoList[position].contains("Email")) {
-                            user.updateField("email", field)
+                            user.setEmail(field)
                         } else if (accountInfoList[position].contains("Phone")) {
-                            user.updateField("phone", field)
+                            user.setPhone(field)
                         }
                         db.updateAuthProfile(
                             user,

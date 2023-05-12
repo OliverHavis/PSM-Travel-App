@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
 
     // initiaization
     private lateinit var db: FirebaseHelper
-    private lateinit var user: User
+    private var user : User? = null
 
     private var isHandburgerMenuOpen = false
     private lateinit var hamburgerMenu: ImageButton
@@ -203,7 +203,7 @@ class MainActivity : ComponentActivity() {
             login_text.visibility = View.INVISIBLE
             loginBtn.visibility = View.INVISIBLE
             display_name.visibility = View.VISIBLE
-            display_name.text = currentUser.first_name
+            display_name.text = currentUser.getFirstName()
         } else {
             login_text.visibility = View.VISIBLE
             loginBtn.visibility = View.VISIBLE
@@ -226,8 +226,6 @@ class MainActivity : ComponentActivity() {
 
             // Close Search
             closeSearch()
-
-            db.signOut()
         }
 
         // Handburger Menu Listeners
@@ -253,7 +251,8 @@ class MainActivity : ComponentActivity() {
          * @see MyProfileActivity
          */
         myProfileBtn.setOnClickListener {
-            if (user.email != "") {
+            // check if the user val is set
+            if (user != null) {
                 val intent = Intent(this, MyProfileActivity::class.java)
                 startActivity(intent)
                 overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top)
@@ -293,5 +292,11 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         setupUI()
+        // Close Menu
+        closeMenu(true)
+        isHandburgerMenuOpen = false
+
+        // Close Search
+        closeSearch()
     }
 }
