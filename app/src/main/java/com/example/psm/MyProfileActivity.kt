@@ -34,11 +34,12 @@ import java.util.*
 
 
 class MyProfileActivity : AppCompatActivity() {
-    // initialization
+    // Constants
+    private val REQUEST_IMAGE_FROM_GALLERY = 1
+
+    // Variables
     private lateinit var db: FirebaseHelper
     private lateinit var user: User
-
-    private val REQUEST_IMAGE_FROM_GALLERY = 1
     private var selectedImageUri: Uri = Uri.EMPTY
     private lateinit var picView: ImageView
 
@@ -55,18 +56,33 @@ class MyProfileActivity : AppCompatActivity() {
         setupUI()
         setupTabs()
 
-
-
-        findViewById<Button>(R.id.logout_button).setOnClickListener {
+        // basic listners
+        findViewById<Button>(R.id.logout_button).setOnClickListener {//Logout
             db.signOut()
             finish()
         }
 
-        findViewById<ImageView>(R.id.profile_picture).setOnClickListener {
+        findViewById<ImageView>(R.id.profile_picture).setOnClickListener {// Profile Picture
             showProfilePictureDialog()
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_IMAGE_FROM_GALLERY && resultCode == Activity.RESULT_OK && data != null) {
+            selectedImageUri = data.data!!
+            Picasso.get().load(selectedImageUri).into(picView)
+        }
+    }
+
+    /**
+     * Shows the profile picture dialog
+     *
+     * This dialog allows the user to upload a profile picture
+     * and save it to Firebase Storage
+     *
+     */
     private fun showProfilePictureDialog() {
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.dialog_profile_picture)
@@ -123,16 +139,6 @@ class MyProfileActivity : AppCompatActivity() {
 
         dialog.show()
     }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == REQUEST_IMAGE_FROM_GALLERY && resultCode == Activity.RESULT_OK && data != null) {
-            selectedImageUri = data.data!!
-            Picasso.get().load(selectedImageUri).into(picView)
-        }
-    }
-
 
     /**
      * Gets the current user and updates the UI.
@@ -202,6 +208,9 @@ class MyProfileActivity : AppCompatActivity() {
         }.attach()
     }
 
+    /**
+     * Finishes the activity with an animation.
+     */
     private fun finishWithAnimation() {
         finish()
         overridePendingTransition(R.anim.slide_in_top, R.anim.slide_out_bottom)
@@ -213,6 +222,13 @@ class MyProfileActivity : AppCompatActivity() {
     }
 }
 
+/**
+ * The pager adapter for the tabs.
+ *
+ * @param fragmentManager The fragment manager.
+ * @param lifecycle The lifecycle.
+ * @param activity The activity.
+ */
 class MyPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle, private val activity: MyProfileActivity) : FragmentStateAdapter(fragmentManager, lifecycle) {
 
     override fun getItemCount(): Int = 2 // number of tabs

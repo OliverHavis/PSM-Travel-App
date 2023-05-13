@@ -62,7 +62,7 @@
                         android:id="@+id/flightPlanner_From"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
-                        android:hint="@string/flying_from"
+                        android:hint="Flying From"
                         />
                 </LinearLayout>
 
@@ -85,7 +85,7 @@
                         android:id="@+id/flightPlanner_Destination"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
-                        android:hint="@string/destination"
+                        android:hint="Destination"
                         />
                 </LinearLayout>
 
@@ -101,7 +101,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="horizontal"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginRight="10dp"
                         android:paddingHorizontal="10dp"
                         android:background="@drawable/rounded_action_bar">
 
@@ -115,7 +115,7 @@
                             android:id="@+id/flightPlanner_DepartureDate"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/when"
+                            android:hint="When"
                             android:focusable="false" />
                     </LinearLayout>
 
@@ -137,8 +137,7 @@
                             android:id="@+id/flightPlanner_lengthOfStay"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="number"
-                            android:hint="@string/nights"
+                            android:hint="Nights"
                             />
                     </LinearLayout>
 
@@ -156,7 +155,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="horizontal"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginRight="10dp"
                         android:paddingHorizontal="10dp"
                         android:background="@drawable/rounded_action_bar">
 
@@ -170,7 +169,7 @@
                             android:id="@+id/flightPlanner_passengerAdults"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/no_of_adults"
+                            android:hint="No. of Adults"
                             android:inputType="number"/>
                     </LinearLayout>
 
@@ -192,7 +191,7 @@
                             android:id="@+id/flightPlanner_passengerChildren"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/no_of_children"
+                            android:hint="No. of Children"
                             android:inputType="number"
                             />
                     </LinearLayout>
@@ -274,7 +273,6 @@
                         android:orientation="horizontal">
 
                         <TextView
-                            android:id="@+id/flightPlannerSearchTextFrom"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="10dp"
@@ -290,7 +288,6 @@
                             android:background="@drawable/ic_dot" />
 
                         <TextView
-                            android:id="@+id/flightPlannerSearchTextTo"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="10dp"
@@ -306,7 +303,6 @@
                             android:background="@drawable/ic_dot" />
 
                         <TextView
-                            android:id="@+id/flightPlannerSearchTextWhen"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginRight="10dp"
@@ -322,7 +318,6 @@
                             android:background="@drawable/ic_dot" />
 
                         <TextView
-                            android:id="@+id/flightPlannerSearchTextWho"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Who"

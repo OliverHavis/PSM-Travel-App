@@ -22,6 +22,8 @@ import com.example.psm.models.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.InputStream
+import java.io.InputStreamReader
 
 
 class MainActivity : ComponentActivity() {
@@ -41,6 +43,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var display_name : TextView;
     private lateinit var screen: ConstraintLayout
     private lateinit var myProfileBtn: ImageButton
+    private lateinit var flightPlannerBtn: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +61,7 @@ class MainActivity : ComponentActivity() {
         login_text = findViewById<TextView>(R.id.login_text)
         display_name = findViewById<TextView>(R.id.display_name)
         myProfileBtn = findViewById<ImageButton>(R.id.user_icon)
+        flightPlannerBtn = findViewById<ImageButton>(R.id.plane_icon)
 
         // setup View
         hideStatusBar()
@@ -286,6 +290,17 @@ class MainActivity : ComponentActivity() {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             overridePendingTransition(R.anim.slide_in_top, R.anim.slide_out_bottom)
+        }
+
+        /**
+         * Opens the Flight Planner activity.
+         *
+         * @see FlightPlannerActivity
+         */
+        flightPlannerBtn.setOnClickListener {
+            val intent = Intent(this, FlightPlannerActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top)
         }
     }
 

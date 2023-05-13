@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class CardsFragment : Fragment() {
+    // Variables
     private val db = FirebaseHelper()
     lateinit var recyclerView: RecyclerView
     lateinit var user: User

@@ -13,6 +13,15 @@
     <string name="placeholder_card_date">10/29</string>
     <string name="placeholder_card_name">John Doe</string>
     <string name="placeholder_card_number">**** **** **** 1234</string>
+    <string name="search_for_your_next_holiday">Search for your next holiday</string>
+    <string name="submit">Submit</string>
+    <string name="reset">reset</string>
+    <string name="flying_from">Flying From</string>
+    <string name="destination">Destination</string>
+    <string name="when">When</string>
+    <string name="nights">Nights</string>
+    <string name="no_of_adults">No. of Adults</string>
+    <string name="no_of_children">No. of Children</string>
 
     <!--  Make me a string array of country  -->
     <string-array name="country_names">

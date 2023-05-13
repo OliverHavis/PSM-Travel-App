@@ -1,10 +1,13 @@
 package com.example.psm.helpers
 
+import android.app.Activity
 import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.net.Uri
 import android.util.Log
+import com.example.psm.R
 import com.example.psm.models.Card
+import com.example.psm.models.Destination
 import com.example.psm.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -12,6 +15,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
+import org.apache.commons.csv.CSVFormat
+import org.apache.commons.csv.CSVParser
+import java.io.*
 import java.nio.charset.StandardCharsets
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
@@ -444,6 +450,68 @@ class FirebaseHelper {
                 onFailure(exception)
             }
     }
+
+    fun populateDestinationsFromCSV(reader: InputStreamReader) {
+
+        val holidayList: List<Destination> = parseCSVData(reader)
+
+        val db = FirebaseFirestore.getInstance()
+        val collectionRef = db.collection("Destinations")
+
+        for (destination in holidayList) {
+            val docRef = collectionRef.document()
+            val data = hashMapOf(
+                "name" to destination.name,
+                "location" to destination.location,
+                "pricePerAdult" to destination.pricePerAdult,
+                "pricePerChild" to destination.pricePerChild,
+                "boardType" to destination.boardType,
+                "discount" to destination.discount,
+                "peakSeason" to destination.peakSeason,
+                "rating" to destination.rating
+            )
+
+            docRef.set(data)
+                .addOnSuccessListener {
+                    Log.d(TAG, "Document added successfully: ${docRef.id}")
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Error adding document: ${e.message}", e)
+                }
+        }
+    }
+
+    fun parseCSVData(reader: Reader): List<Destination> {
+        val destinationList = mutableListOf<Destination>()
+
+        try {
+            val csvParser = CSVParser(reader, CSVFormat.DEFAULT.withHeader())
+
+            for (record in csvParser) {
+                val name = record["Name"] ?: ""
+                val location = record["Location"] ?: ""
+                val pricePerAdult = record["Price Per Adult"]?.toDoubleOrNull() ?: 0.0
+                val pricePerChild = record["Price Per Child"]?.toDoubleOrNull() ?: 0.0
+                val boardType = record["Board Type"] ?: ""
+                val discount = record["Discount"]?.toDoubleOrNull() ?: 0.0
+                val peakSeason = record["Peak Season"] ?: ""
+                val rating = record["Rating"]?.toDoubleOrNull() ?: 0.0
+
+                val destination = Destination(name, location, pricePerAdult, pricePerChild, boardType, discount, peakSeason, rating)
+                destinationList.add(destination)
+            }
+
+            csvParser.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return destinationList
+    }
+
+
+
+
 }
 object EncryptionUtils {
     private const val AES_KEY = "xExgXQfGUCpi6ROESLi6Hw=="
