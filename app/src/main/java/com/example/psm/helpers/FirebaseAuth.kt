@@ -1,22 +1,21 @@
 package com.example.psm.helpers
 
-import android.app.Activity
 import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.net.Uri
 import android.util.Log
-import com.example.psm.R
 import com.example.psm.models.Card
 import com.example.psm.models.Destination
+import com.example.psm.models.Saved
 import com.example.psm.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.tasks.await
-import org.apache.commons.csv.CSVFormat
-import org.apache.commons.csv.CSVParser
 import java.io.*
 import java.nio.charset.StandardCharsets
 import javax.crypto.Cipher
@@ -451,64 +450,369 @@ class FirebaseHelper {
             }
     }
 
-    fun populateDestinationsFromCSV(reader: InputStreamReader) {
-
-        val holidayList: List<Destination> = parseCSVData(reader)
-
+    // Destinations
+    fun getAvailableLocations(onSuccess: (List<String>) -> Unit, onFailure: (Exception) -> Unit) {
         val db = FirebaseFirestore.getInstance()
         val collectionRef = db.collection("Destinations")
 
-        for (destination in holidayList) {
-            val docRef = collectionRef.document()
-            val data = hashMapOf(
-                "name" to destination.name,
-                "location" to destination.location,
-                "pricePerAdult" to destination.pricePerAdult,
-                "pricePerChild" to destination.pricePerChild,
-                "boardType" to destination.boardType,
-                "discount" to destination.discount,
-                "peakSeason" to destination.peakSeason,
-                "rating" to destination.rating
-            )
+        collectionRef.get()
+            .addOnSuccessListener { result ->
+                val locations = mutableListOf<String>("Any")
+                for (document in result) {
+                    Log.d(TAG, "${document.id} => ${document.data}")
+                    var location = document.data["location"] as List<String>
+                    if (!locations.contains(location.last())) {
+                        locations.add(location.last())
+                    }
+                }
 
-            docRef.set(data)
-                .addOnSuccessListener {
-                    Log.d(TAG, "Document added successfully: ${docRef.id}")
-                }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "Error adding document: ${e.message}", e)
-                }
-        }
+                locations.sort()
+                onSuccess(locations)
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "Error getting documents: ", exception)
+                onFailure(exception)
+            }
     }
 
-    fun parseCSVData(reader: Reader): List<Destination> {
-        val destinationList = mutableListOf<Destination>()
+    fun getRandomLocations(limit: Int = 3, onSuccess: (List<Destination>) -> Unit, onFailure: (Exception) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val collectionRef = db.collection("Destinations")
 
-        try {
-            val csvParser = CSVParser(reader, CSVFormat.DEFAULT.withHeader())
+        collectionRef.get().addOnSuccessListener { result ->
+            val destinations = mutableListOf<Destination>()
+            val totalDestinations = result.size()
 
-            for (record in csvParser) {
-                val name = record["Name"] ?: ""
-                val location = record["Location"] ?: ""
-                val pricePerAdult = record["Price Per Adult"]?.toDoubleOrNull() ?: 0.0
-                val pricePerChild = record["Price Per Child"]?.toDoubleOrNull() ?: 0.0
-                val boardType = record["Board Type"] ?: ""
-                val discount = record["Discount"]?.toDoubleOrNull() ?: 0.0
-                val peakSeason = record["Peak Season"] ?: ""
-                val rating = record["Rating"]?.toDoubleOrNull() ?: 0.0
+            // Generate random indices within the range of available destinations
+            val randomIndices = (0 until totalDestinations).shuffled().take(limit)
 
-                val destination = Destination(name, location, pricePerAdult, pricePerChild, boardType, discount, peakSeason, rating)
-                destinationList.add(destination)
+            // Retrieve destinations based on the random indices
+            for (index in randomIndices) {
+                val document = result.documents[index]
+                val destination = Destination(
+                    document.id,
+                    document.data!!.get("name") as String,
+                    document.data!!["location"] as List<String>,
+                    document.data!!["pricePerAdult"] as Double,
+                    document.data!!["pricePerChild"] as Double,
+                    document.data!!["boardType"] as String,
+                    document.data!!["discount"] as Double,
+                    document.data!!["peakSeason"] as String,
+                    document.data!!["rating"] as Double
+                )
+                destinations.add(destination)
             }
 
-            csvParser.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
+            onSuccess(destinations)
         }
-
-        return destinationList
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "Error getting documents: ", exception)
+                onFailure(exception)
+            }
     }
 
+    fun halveCostFromDB(onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val collectionRef = db.collection("Destinations")
+
+        collectionRef.get()
+            .addOnSuccessListener { result ->
+                val batch = db.batch()
+
+                for (document in result) {
+                    val destinationRef = collectionRef.document(document.id)
+
+                    val newPricePerChild = (document.data["pricePerChild"] as Double) * 2
+                    batch.update(destinationRef, "pricePerChild", newPricePerChild)
+                }
+
+                batch.commit()
+                    .addOnSuccessListener {
+                        // Commit successful
+                        onSuccess()
+                    }
+                    .addOnFailureListener { exception ->
+                        // Commit failed
+                        onFailure(exception)
+                    }
+            }
+            .addOnFailureListener { exception ->
+                // Query failed
+                onFailure(exception)
+            }
+    }
+
+
+
+    fun queryDestinations(
+        country: String,
+        onSuccess: (List<Destination>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val db = FirebaseFirestore.getInstance()
+
+        if (country == "Any") {
+            getRandomLocations(limit = 5,
+                onSuccess = { destinations ->
+                onSuccess(destinations)
+            }, onFailure = { exception ->
+                onFailure(exception)
+            })
+            return
+        }
+
+        val collectionRef = db.collection("Destinations")
+        collectionRef.whereArrayContains("location", country)
+            .get()
+            .addOnSuccessListener { result ->
+                val destinations = mutableListOf<Destination>()
+                for (document in result) {
+                    Log.d(TAG, "${document.id} => ${document.data}")
+                    val destination = Destination(
+                        document.id,
+                        document.data["name"] as String,
+                        document.data["location"] as List<String>,
+                        document.data["pricePerAdult"] as Double,
+                        document.data["pricePerChild"] as Double,
+                        document.data["boardType"] as String,
+                        document.data["discount"] as Double,
+                        document.data["peakSeason"] as String,
+                        document.data["rating"] as Double
+                    )
+                    destinations.add(destination)
+                }
+
+                onSuccess(destinations)
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "Error getting documents: ", exception)
+                onFailure(exception)
+            }
+    }
+
+    fun getSaves(
+        onSuccess: (List<Saved>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val db = FirebaseFirestore.getInstance()
+        val collectionRef = db.collection("Saved")
+
+        collectionRef.whereEqualTo("user_id", FirebaseAuth.getInstance().currentUser!!.uid)
+            .get()
+            .addOnSuccessListener { result ->
+                val saves = mutableListOf<Saved>()
+                val totalDestinations = result.size()
+                var destinationsRetrieved = 0
+
+                for (document in result) {
+                    db.collection("Destinations").document(document.data["destination_id"] as String)
+                        .get()
+                        .addOnSuccessListener { destination ->
+                            val save = Saved(
+                                document.id,
+                                Destination(
+                                    destination.id,
+                                    destination.data!!["name"] as String,
+                                    destination.data!!["location"] as List<String>,
+                                    destination.data!!["pricePerAdult"] as Double,
+                                    destination.data!!["pricePerChild"] as Double,
+                                    destination.data!!["boardType"] as String,
+                                    destination.data!!["discount"] as Double,
+                                    destination.data!!["peakSeason"] as String,
+                                    destination.data!!["rating"] as Double
+                                ),
+                                FirebaseAuth.getInstance().currentUser!!.uid,
+                                document.data["query"] as Map<String, Any>,
+                            )
+                            saves.add(save)
+
+                            destinationsRetrieved++
+                            if (destinationsRetrieved == totalDestinations) {
+                                onSuccess(saves)
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.d(TAG, "Error getting documents: ", exception)
+                            onFailure(exception)
+                        }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "Error getting documents: ", exception)
+                onFailure(exception)
+            }
+    }
+
+
+    fun addToFavorites(
+        destination: Destination,
+        queryFrom: String,
+        queryTo: String,
+        queryDate: String,
+        queryNights: Int,
+        queryAdults: Int,
+        queryChildren: Int,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val db = FirebaseFirestore.getInstance()
+        val collectionRef = db.collection("Saved")
+
+        val query = mutableMapOf<String, Any>(
+            "from" to queryFrom,
+            "to" to queryTo,
+            "date" to queryDate,
+            "nights" to queryNights,
+            "adults" to queryAdults,
+            "children" to queryChildren
+        )
+
+        val savedMap = mutableMapOf(
+            "destination_id" to destination.getId(),
+            "user_id" to FirebaseAuth.getInstance().currentUser!!.uid,
+            "query" to query,
+        )
+
+        collectionRef.add(savedMap)
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error adding document", e)
+                onFailure()
+            }
+    }
+
+    fun removeFromFavorites(
+        destination: Destination,
+        queryFrom: String,
+        queryTo: String,
+        queryDate: String,
+        queryNights: Int,
+        queryAdults: Int,
+        queryChildren: Int,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        val db = FirebaseFirestore.getInstance()
+        val collectionRef = db.collection("Saved")
+
+        val query = mutableMapOf<String, Any>(
+            "from" to queryFrom,
+            "to" to queryTo,
+            "date" to queryDate,
+            "nights" to queryNights,
+            "adults" to queryAdults,
+            "children" to queryChildren
+        )
+
+        // Query to find the document to remove
+        val queryToRemove = collectionRef
+            .whereEqualTo("destination_id", destination.getId())
+            .whereEqualTo("user_id", FirebaseAuth.getInstance().currentUser!!.uid)
+            .whereEqualTo("query", query)
+
+        queryToRemove.get()
+            .addOnSuccessListener { result ->
+                // Check if the document exists
+                if (!result.isEmpty) {
+                    val document = result.documents[0]
+                    // Remove the document
+                    document.reference.delete()
+                        .addOnSuccessListener {
+                            Log.d(TAG, "DocumentSnapshot successfully removed")
+                            onSuccess()
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w(TAG, "Error removing document", e)
+                            onFailure()
+                        }
+                } else {
+                    // Document not found
+                    onFailure()
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "Error getting documents: ", exception)
+                onFailure()
+            }
+    }
+
+
+    fun getPicture(directory: String, id :String, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+
+        val imageRef: StorageReference = storageRef.child("$directory/$id.jpeg")
+
+        imageRef.downloadUrl
+            .addOnSuccessListener { uri ->
+                onSuccess(uri.toString())
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+
+    // Populate the database with the destinations from the CSV file
+//    fun populateDestinationsFromCSV(reader: InputStreamReader) {
+//
+//        val holidayList: List<Destination> = parseCSVData(reader)
+//
+//        val db = FirebaseFirestore.getInstance()
+//        val collectionRef = db.collection("Destinations")
+//
+//        for (destination in holidayList) {
+//            val docRef = collectionRef.document()
+//            val data = hashMapOf(
+//                "name" to destination.name,
+//                "location" to destination.location,
+//                "pricePerAdult" to destination.pricePerAdult,
+//                "pricePerChild" to destination.pricePerChild,
+//                "boardType" to destination.boardType,
+//                "discount" to destination.discount,
+//                "peakSeason" to destination.peakSeason,
+//                "rating" to destination.rating
+//            )
+//
+//            docRef.set(data)
+//                .addOnSuccessListener {
+//                    Log.d(TAG, "Document added successfully: ${docRef.id}")
+//                }
+//                .addOnFailureListener { e ->
+//                    Log.e(TAG, "Error adding document: ${e.message}", e)
+//                }
+//        }
+//    }
+//
+//    fun parseCSVData(reader: Reader): List<Destination> {
+//        val destinationList = mutableListOf<Destination>()
+//
+//        try {
+//            val csvParser = CSVParser(reader, CSVFormat.DEFAULT.withHeader())
+//
+//            for (record in csvParser) {
+//                val name = record["Name"] ?: ""
+//                val location = record["Location"] ?: ""
+//                val pricePerAdult = record["Price Per Adult"]?.toDoubleOrNull() ?: 0.0
+//                val pricePerChild = record["Price Per Child"]?.toDoubleOrNull() ?: 0.0
+//                val boardType = record["Board Type"] ?: ""
+//                val discount = record["Discount"]?.toDoubleOrNull() ?: 0.0
+//                val peakSeason = record["Peak Season"] ?: ""
+//                val rating = record["Rating"]?.toDoubleOrNull() ?: 0.0
+//
+//                val destination = Destination(name, location, pricePerAdult, pricePerChild, boardType, discount, peakSeason, rating)
+//                destinationList.add(destination)
+//            }
+//
+//            csvParser.close()
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+//
+//        return destinationList
+//    }
 
 
 

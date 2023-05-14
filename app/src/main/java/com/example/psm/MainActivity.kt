@@ -44,6 +44,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var screen: ConstraintLayout
     private lateinit var myProfileBtn: ImageButton
     private lateinit var flightPlannerBtn: ImageButton
+    private lateinit var savedBtn: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +63,7 @@ class MainActivity : ComponentActivity() {
         display_name = findViewById<TextView>(R.id.display_name)
         myProfileBtn = findViewById<ImageButton>(R.id.user_icon)
         flightPlannerBtn = findViewById<ImageButton>(R.id.plane_icon)
+        savedBtn = findViewById<ImageButton>(R.id.heart_icon)
 
         // setup View
         hideStatusBar()
@@ -299,6 +301,17 @@ class MainActivity : ComponentActivity() {
          */
         flightPlannerBtn.setOnClickListener {
             val intent = Intent(this, FlightPlannerActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top)
+        }
+
+        /**
+         * Opens the Saved Holidays activity.
+         *
+         * @see FlightTrackerActivity
+         */
+        savedBtn.setOnClickListener {
+            val intent = Intent(this, SavedActivity::class.java)
             startActivity(intent)
             overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top)
         }

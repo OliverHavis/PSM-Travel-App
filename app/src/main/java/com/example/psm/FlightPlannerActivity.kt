@@ -10,16 +10,17 @@ import androidx.activity.ComponentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.graphics.Rect
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
+import com.example.psm.helpers.FirebaseHelper
 import java.util.*
 
 
 class FlightPlannerActivity : ComponentActivity() {
     // Variables
+    private lateinit var db: FirebaseHelper
     private lateinit var adapter: HolidayPlannerAdapter
     private var isExpanded = false
     private lateinit var querySearchBtn: View
@@ -28,12 +29,25 @@ class FlightPlannerActivity : ComponentActivity() {
     private var querySearchBtnHeight = 0
     private var queryInputsHeight = 0
     private lateinit var queryInputs : LinearLayout
-    private var querySelectedFrom = ""
-    private var querySelectedDestination = ""
+    private var querySelectedFrom = "Any"
+    private var querySelectedDestination = "Any"
+    private lateinit var searchText: TextView
+    private lateinit var searchTextFrom: TextView
+    private lateinit var searchTextTo: TextView
+    private lateinit var searchTextWhen: TextView
+    private lateinit var searchTextWho: TextView
+    private lateinit var flyingFromSpinner : Spinner
+    private lateinit var destinationSpinner : Spinner
+    private lateinit var resultText : TextView
+
+    lateinit var allUkAirports : List<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_flight_planner)
+
+        db = FirebaseHelper()
+
 
         queryInputs = findViewById<LinearLayout>(R.id.flightPlannerFields)
         val queryInputsViewTreeObserver = queryInputs.viewTreeObserver
@@ -58,30 +72,84 @@ class FlightPlannerActivity : ComponentActivity() {
 
     fun setupUI() {
 
+        // destination list
         val recyclerView = findViewById<RecyclerView>(R.id.flightPlannerRecyclerView)
 
-        adapter = HolidayPlannerAdapter()
-        recyclerView.adapter = adapter
-        val spacingInPixels = resources.getDimensionPixelSize(R.dimen.item_spacing)
-        recyclerView.addItemDecoration(SpaceItemDecoration(spacingInPixels))
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        // Airport lists
+        val ukAirports = listOf(
+            "London Heathrow Airport",
+            "London Gatwick Airport",
+            "Manchester Airport",
+            "Birmingham Airport",
+            "Glasgow Airport",
+            "Edinburgh Airport",
+            "Bristol Airport",
+            "Stansted Airport",
+            "Luton Airport",
+            "Liverpool John Lennon Airport",
+            "Newcastle Airport",
+            "Leeds Bradford Airport",
+            "East Midlands Airport",
+            "Belfast International Airport",
+            "Aberdeen Airport",
+            "Southampton Airport",
+            "Cardiff Airport",
+            "Bournemouth Airport",
+            "London City Airport",
+            "Exeter Airport",
+            "Inverness Airport",
+            "Norwich Airport",
+            "Dundee Airport",
+            "Humberside Airport",
+            "Jersey Airport",
+            "Guernsey Airport"
+        )
 
-        val flyingFromSpinner = findViewById<Spinner>(R.id.flightPlanner_From)
-        val destinationSpinner = findViewById<Spinner>(R.id.flightPlanner_Destination)
-        val flyingFromitems = listOf("Flying From?",)
-        val destininationFromItems = listOf("Where to?", "Italy")
+        val additionalAirports = listOf(
+            "Belfast City Airport",
+            "London Luton Airport",
+            "London Stansted Airport",
+            "London Southend Airport",
+            "Prestwick Airport",
+            "Isle of Man Airport",
+            "Blackpool Airport",
+            "Newquay Cornwall Airport",
+            "Durham Tees Valley Airport",
+            "Isle of Wight Sandown Airport"
+        )
+
+        allUkAirports = ukAirports + additionalAirports
+        val flyingFromitems = listOf("Any") + allUkAirports.sorted()
+
+        // Getting 'Top Destinations' from Firebase
+        db.getRandomLocations(
+            onSuccess = { topDestinations ->
+                adapter = HolidayPlannerAdapter(this)
+                recyclerView.adapter = adapter
+                val spacingInPixels = resources.getDimensionPixelSize(R.dimen.item_spacing)
+                recyclerView.addItemDecoration(SpaceItemDecoration(spacingInPixels))
+                recyclerView.layoutManager = LinearLayoutManager(this)
+
+                adapter.setData(topDestinations)
+            },
+            onFailure = {
+                Toast.makeText(this, "Failed to get top destinations", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        // flight dropdowns
+        flyingFromSpinner = findViewById<Spinner>(R.id.flightPlanner_From)
+        destinationSpinner = findViewById<Spinner>(R.id.flightPlanner_Destination)
+
 
         val flayingFromAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, flyingFromitems)
-        val destinationAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, destininationFromItems)
         flayingFromAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        destinationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
         flyingFromSpinner.adapter = flayingFromAdapter
-        destinationSpinner.adapter = destinationAdapter
 
         flyingFromSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedItem = flyingFromitems[position]
+                println("selectedItem: $selectedItem")
                 querySelectedFrom = selectedItem
             }
 
@@ -90,17 +158,27 @@ class FlightPlannerActivity : ComponentActivity() {
             }
         }
 
-        destinationSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedItem = destininationFromItems[position]
-                querySelectedDestination = selectedItem
-            }
+        db.getAvailableLocations(
+            onSuccess = { locations ->
+                val destinationAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, locations)
+                destinationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                destinationSpinner.adapter = destinationAdapter
 
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-                // Do nothing
-            }
-        }
+                destinationSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                        val selectedItem = locations[position]
+                        querySelectedDestination = selectedItem
+                    }
 
+                    override fun onNothingSelected(p0: AdapterView<*>?) {
+                        // Do nothing
+                    }
+                }
+            },
+            onFailure = {
+                Toast.makeText(this, "Failed to get available locations", Toast.LENGTH_SHORT).show()
+            }
+        )
 
     }
 
@@ -108,6 +186,14 @@ class FlightPlannerActivity : ComponentActivity() {
         querySearchBtn = findViewById(R.id.flightPlannerSearch)
         querySubmitBtn = findViewById(R.id.flightPlannerSubmit)
         queryResetBtn = findViewById(R.id.flightPlannerReset)
+
+        resultText = findViewById(R.id.resultsText)
+
+        searchText = findViewById<TextView>(R.id.flightPlannerSearchText)
+        searchTextFrom = findViewById<TextView>(R.id.flightPlannerSearchTextFrom)
+        searchTextTo = findViewById<TextView>(R.id.flightPlannerSearchTextTo)
+        searchTextWhen = findViewById<TextView>(R.id.flightPlannerSearchTextWhen)
+        searchTextWho = findViewById<TextView>(R.id.flightPlannerSearchTextWho)
     }
 
     fun setupListeners() {
@@ -117,23 +203,51 @@ class FlightPlannerActivity : ComponentActivity() {
 
         querySubmitBtn.setOnClickListener {
             val departureDate = findViewById<EditText>(R.id.flightPlanner_DepartureDate).text.toString()
-            val nights = findViewById<EditText>(R.id.flightPlanner_lengthOfStay).text.toString()
-            val adultsNum = findViewById<EditText>(R.id.flightPlanner_passengerAdults).text.toString()
-            val childrenNum = findViewById<EditText>(R.id.flightPlanner_passengerChildren).text.toString()
+            val nightsText = findViewById<EditText>(R.id.flightPlanner_lengthOfStay).text.toString()
+            val adultsNumText = findViewById<EditText>(R.id.flightPlanner_passengerAdults).text.toString()
+            val childrenNumText = findViewById<EditText>(R.id.flightPlanner_passengerChildren).text.toString()
+
+            val nights = nightsText.toIntOrNull() ?: 0
+            val adultsNum = adultsNumText.toIntOrNull() ?: 0
+            val childrenNum = childrenNumText.toIntOrNull() ?: 0
 
             // Check if the query inputs are valid
-            if (departureDate == "" || nights == "" || adultsNum == "" || childrenNum == "" || querySelectedFrom == "" || querySelectedDestination == "") {
+            if (departureDate == "" || querySelectedFrom == "" || querySelectedDestination == "") {
                 Toast.makeText(this, "Please fill in all the fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Update the search button text
-            findViewById<TextView>(R.id.flightPlannerSearchText).text = "Holidays for $querySelectedDestination"
-            findViewById<TextView>(R.id.flightPlannerSearchTextFrom).text = "$querySelectedFrom"
-            findViewById<TextView>(R.id.flightPlannerSearchTextTo).text = "$querySelectedDestination"
-            findViewById<TextView>(R.id.flightPlannerSearchTextWhen).text = "$departureDate"
-            findViewById<TextView>(R.id.flightPlannerSearchTextWho).text = "$adultsNum Adults, $childrenNum Children"
+            if (nights < 1) {
+                Toast.makeText(this, "Please enter a valid number of nights", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
+            if (adultsNum < 1) {
+                Toast.makeText(this, "Please enter a valid number of adults", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            resultText.visibility = View.GONE
+
+            // Update the search button text
+            searchText.text = "Holidays for $querySelectedDestination"
+            searchTextFrom.text = "$querySelectedFrom"
+            searchTextTo.text = "$querySelectedDestination"
+            searchTextWhen.text = "$departureDate"
+            searchTextWho.text = "$adultsNum Adults, $childrenNum Children"
+
+            db.queryDestinations(
+                querySelectedDestination,
+                onSuccess = { holidays ->
+                    println("holidays: $holidays")
+                    // Update the data in your RecyclerView adapter
+                    adapter.setData(holidays)
+                    adapter.setQueryData(querySelectedFrom, querySelectedDestination, departureDate, nights, adultsNum, childrenNum)
+                },
+                onFailure = {
+                    Toast.makeText(this, "Failed to get holidays", Toast.LENGTH_SHORT).show()
+                }
+            )
 
             collapseCardView()
 
@@ -147,6 +261,29 @@ class FlightPlannerActivity : ComponentActivity() {
             findViewById<EditText>(R.id.flightPlanner_lengthOfStay).text.clear()
             findViewById<EditText>(R.id.flightPlanner_passengerAdults).text.clear()
             findViewById<EditText>(R.id.flightPlanner_passengerChildren).text.clear()
+
+            searchText.text = "Search for your next holiday"
+            searchTextFrom.text = "From"
+            searchTextTo.text = "To"
+            searchTextWhen.text = "When"
+            searchTextWho.text = "Who"
+
+            flyingFromSpinner.setSelection(0)
+            destinationSpinner.setSelection(0)
+
+            db.getRandomLocations(
+                onSuccess = { topDestinations ->
+                    adapter.setData(topDestinations)
+                    
+                },
+                onFailure = {
+                    Toast.makeText(this, "Failed to get top destinations", Toast.LENGTH_SHORT).show()
+                }
+            )
+
+            resultText.visibility = View.VISIBLE
+
+            collapseCardView()
         }
 
         val departureDateEditText = findViewById<EditText>(R.id.flightPlanner_DepartureDate)
@@ -279,21 +416,5 @@ class FlightPlannerActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
-    }
-}
-
-class SpaceItemDecoration(private val space: Int) : RecyclerView.ItemDecoration() {
-
-    override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-        outRect.left = space
-        outRect.right = space
-        outRect.bottom = space
-
-        // Add top margin only for the first item to avoid double spacing between items
-        if (parent.getChildAdapterPosition(view) == 0) {
-            outRect.top = space
-        } else {
-            outRect.top = 0
-        }
     }
 }

@@ -56,7 +56,20 @@
                 android:textColor="@color/dark_blue"
                 android:textSize="20sp" />
 
+            <RatingBar
+                android:id="@+id/destination_rating"
+                style="@style/Widget.AppCompat.RatingBar.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:isIndicator="true"
+                android:numStars="5"
+                android:rating="4.6"
+                android:progressTint="@color/dark_blue"
+                android:stepSize="0.1" />
+
             <LinearLayout
+                android:layout_marginTop="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -118,6 +131,16 @@
                     android:textColor="@color/black"
                     android:textSize="10dp" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/destination_discount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="Was £1,500pp. Save £300pp"
+                android:textColor="@color/dark_blue"
+                android:textSize="17sp" />
+
 
             <Button
                 android:id="@+id/destination_price_button"

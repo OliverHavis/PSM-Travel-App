@@ -12,13 +12,14 @@ import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.example.psm.helpers.FirebaseHelper
 import com.example.psm.models.Destination
+import com.example.psm.models.Saved
 import com.squareup.picasso.Picasso
 
-class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
-    RecyclerView.Adapter<HolidayPlannerAdapter.DestinationViewHolder>() {
+class SavedAdapter(val activity: SavedActivity) :
+    RecyclerView.Adapter<SavedAdapter.DestinationViewHolder>() {
 
     private val db = FirebaseHelper()
-    private var destinations = mutableListOf<Destination>()
+    private var saves = mutableListOf<Saved>()
 
     // Default query values
     private var queryFrom : String = "Any"
@@ -52,7 +53,16 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
 
 
     override fun onBindViewHolder(holder: DestinationViewHolder, position: Int) {
-        val destination = destinations[position]
+        val saved = saves[position]
+        println(saved)
+        val destination = saved.destination
+
+        queryFrom = saved.query["from"].toString()
+        queryTo = saved.query["to"].toString()
+        queryDate = saved.query["date"].toString()
+        queryNights = saved.query["nights"].toString().toInt()
+        queryAdults = saved.query["adults"].toString().toInt()
+        queryChildren = saved.query["children"].toString().toInt()
 
         var totalPrice = destination.caluteTotalPrice(queryAdults, queryChildren, queryNights)
         var partySize =  queryAdults + queryChildren
@@ -125,45 +135,42 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
 
         // Listeners
         holder.destinationFavorite.setOnClickListener {
-            // toggle src of image button from ic_heart to ic_heart_red
-            if (holder.destinationFavorite.tag == "ic_heart") {
-                db.addToFavorites(
-                    destination,
-                    queryFrom,
-                    queryTo,
-                    queryDate,
-                    queryNights,
-                    queryAdults,
-                    queryChildren,
-                    onSuccess = {
-                        holder.destinationFavorite.setImageResource(R.drawable.ic_heart_red)
-                        holder.destinationFavorite.tag = "ic_heart_red"
-                        Toast.makeText(holder.itemView.context, "Added to favorites", Toast.LENGTH_SHORT).show()
-                    },
-                    onFailure = {
-                        Toast.makeText(holder.itemView.context, "Failed to add to favorites", Toast.LENGTH_SHORT).show()
-                    }
-                )
-            } else {
-                db.removeFromFavorites(
-                    destination,
-                    queryFrom,
-                    queryTo,
-                    queryDate,
-                    queryNights,
-                    queryAdults,
-                    queryChildren,
-                    onSuccess = {
-                        holder.destinationFavorite.setImageResource(R.drawable.ic_heart)
-                        holder.destinationFavorite.tag = "ic_heart"
-                        Toast.makeText(holder.itemView.context, "Removed from favorites", Toast.LENGTH_SHORT).show()
-                    },
-                    onFailure = {
-                        Toast.makeText(holder.itemView.context, "Failed to remove from favorites", Toast.LENGTH_SHORT).show()
-                    }
-                )
-            }
+            db.removeFromFavorites(
+                destination,
+                queryFrom,
+                queryTo,
+                queryDate,
+                queryNights,
+                queryAdults,
+                queryChildren,
+                onSuccess = {
+                    Toast.makeText(
+                        holder.itemView.context,
+                        "Removed from favorites",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                },
+                onFailure = {
+                    Toast.makeText(
+                        holder.itemView.context,
+                        "Failed to remove from favorites",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            )
         }
+    }
+
+    override fun getItemCount(): Int {
+        // Return the size of the card list
+        return saves.size
+    }
+
+    fun setData(saves: List<Saved>) {
+        println(saves)
+        this.saves = saves as MutableList<Saved>
+        println(this.saves)
+        notifyDataSetChanged()
     }
 
     fun randomDate(): String {
@@ -171,48 +178,6 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
         val month = (1..12).random()
         val year = (2023..2024).random()
         return "$day/$month/$year"
-    }
-
-    override fun getItemCount(): Int {
-        // Return the size of the card list
-        return destinations.size
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        // Determine the view type based on the position
-        return if (position == 0) {
-            VIEW_TYPE_FIRST_CARD
-        } else {
-            VIEW_TYPE_NORMAL_CARD
-        }
-    }
-
-    fun setData(destinations: List<Destination>) {
-        this.destinations = destinations as MutableList<Destination>
-        notifyDataSetChanged()
-    }
-
-    fun setQueryData(
-        querySelectedFrom: String,
-        querySelectedDestination: String,
-        departureDate: String,
-        nights: Int,
-        adultsNum: Int,
-        childrenNum: Int
-    ) {
-        queryFrom = querySelectedFrom
-        queryTo = querySelectedDestination
-        queryDate = departureDate
-        queryNights = nights
-        queryAdults = adultsNum
-        queryChildren = childrenNum
-
-        notifyDataSetChanged()
-    }
-
-    companion object {
-        private const val VIEW_TYPE_FIRST_CARD = 0
-        private const val VIEW_TYPE_NORMAL_CARD = 1
     }
 
 }

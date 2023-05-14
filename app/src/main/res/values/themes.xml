@@ -13,4 +13,10 @@
         <item name="colorAccent">@color/dark_blue</item>
     </style>
 
+    <style name="CustomRatingBar" parent="@style/Widget.AppCompat.RatingBar.Small">
+        <item name="android:progressTint">@color/dark_blue</item>
+        <item name="android:progressBackgroundTint">#00000000</item>
+    </style>
+
+
 </resources>

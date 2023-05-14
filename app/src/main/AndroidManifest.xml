@@ -39,6 +39,9 @@
         <activity
             android:name=".FlightPlannerActivity"
             android:exported="false" />
+        <activity
+            android:name=".SavedActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
