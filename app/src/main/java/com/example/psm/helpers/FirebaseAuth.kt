@@ -707,6 +707,8 @@ class FirebaseHelper {
             "children" to queryChildren
         )
 
+        Log.d(TAG, "Destination: ${destination.getId()}, User: ${FirebaseAuth.getInstance().currentUser!!.uid}, Query: ${query}")
+
         // Query to find the document to remove
         val queryToRemove = collectionRef
             .whereEqualTo("destination_id", destination.getId())
@@ -715,6 +717,10 @@ class FirebaseHelper {
 
         queryToRemove.get()
             .addOnSuccessListener { result ->
+                Log.d(TAG, "DocumentSnapshot successfully retrieved: ${result}")
+                for (document in result) {
+                    Log.d(TAG, "${document.id} => ${document.data}")
+                }
                 // Check if the document exists
                 if (!result.isEmpty) {
                     val document = result.documents[0]
@@ -755,65 +761,103 @@ class FirebaseHelper {
             }
     }
 
-    // Populate the database with the destinations from the CSV file
-//    fun populateDestinationsFromCSV(reader: InputStreamReader) {
-//
-//        val holidayList: List<Destination> = parseCSVData(reader)
-//
-//        val db = FirebaseFirestore.getInstance()
-//        val collectionRef = db.collection("Destinations")
-//
-//        for (destination in holidayList) {
-//            val docRef = collectionRef.document()
-//            val data = hashMapOf(
-//                "name" to destination.name,
-//                "location" to destination.location,
-//                "pricePerAdult" to destination.pricePerAdult,
-//                "pricePerChild" to destination.pricePerChild,
-//                "boardType" to destination.boardType,
-//                "discount" to destination.discount,
-//                "peakSeason" to destination.peakSeason,
-//                "rating" to destination.rating
-//            )
-//
-//            docRef.set(data)
-//                .addOnSuccessListener {
-//                    Log.d(TAG, "Document added successfully: ${docRef.id}")
-//                }
-//                .addOnFailureListener { e ->
-//                    Log.e(TAG, "Error adding document: ${e.message}", e)
-//                }
-//        }
-//    }
-//
-//    fun parseCSVData(reader: Reader): List<Destination> {
-//        val destinationList = mutableListOf<Destination>()
-//
-//        try {
-//            val csvParser = CSVParser(reader, CSVFormat.DEFAULT.withHeader())
-//
-//            for (record in csvParser) {
-//                val name = record["Name"] ?: ""
-//                val location = record["Location"] ?: ""
-//                val pricePerAdult = record["Price Per Adult"]?.toDoubleOrNull() ?: 0.0
-//                val pricePerChild = record["Price Per Child"]?.toDoubleOrNull() ?: 0.0
-//                val boardType = record["Board Type"] ?: ""
-//                val discount = record["Discount"]?.toDoubleOrNull() ?: 0.0
-//                val peakSeason = record["Peak Season"] ?: ""
-//                val rating = record["Rating"]?.toDoubleOrNull() ?: 0.0
-//
-//                val destination = Destination(name, location, pricePerAdult, pricePerChild, boardType, discount, peakSeason, rating)
-//                destinationList.add(destination)
-//            }
-//
-//            csvParser.close()
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//        }
-//
-//        return destinationList
-//    }
+    fun getExcursions(destination_id: String, onSuccess: (List<Map<String, Any>>) -> Unit, onFailure: (Exception) -> Unit) {
+        Log.d(TAG, "Destination ID: $destination_id")
+        val db = FirebaseFirestore.getInstance()
+        val collectionRef = db.collection("Excursions") // Corrected collection name to "excursions"
 
+        collectionRef.whereEqualTo("destination_id", destination_id)
+            .get()
+            .addOnSuccessListener { result ->
+                val excursions = mutableListOf<Map<String, Any>>()
+                Log.d(TAG, "DocumentSnapshot successfully retrieved: $result")
+                for (document in result) {
+                    Log.d(TAG, "${document.id} => ${document.data}")
+                    val excursion = mutableMapOf<String, Any>(
+                        "id" to document.id,
+                        "name" to document.data["name"] as String,
+                        "price" to document.data["price"] as Double
+                    )
+                    excursions.add(excursion)
+                }
+                onSuccess(excursions)
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "Error getting documents: ", exception)
+                onFailure(exception)
+            }
+    }
+
+    fun importExcursionsToFirestore() {
+
+        val data = "A5tS0HLWX6Di4dcDUJ4M,Jungfraujoch Excursion,180.00\n" +
+                "A5tS0HLWX6Di4dcDUJ4M,Trümmelbach Falls,25.00\n" +
+                "A5tS0HLWX6Di4dcDUJ4M,Lake Thun Cruise,45.00\n" +
+                "DbAxCOsBC82Q1wTT42NJ,Palmitos Park,45.00\n" +
+                "DbAxCOsBC82Q1wTT42NJ,Jeep Safari,80.00\n" +
+                "DbAxCOsBC82Q1wTT42NJ,Scuba Diving,60.00\n" +
+                "HrPMgZnwMSIjO3BDrzkx,Loro Parque,45.00\n" +
+                "HrPMgZnwMSIjO3BDrzkx,Teide National Park,30.00\n" +
+                "HrPMgZnwMSIjO3BDrzkx,Whale Watching Tour,50.00\n" +
+                "MlsG9RyIwpJeQqoCvsla,Los Gigantes Boat Trip,40.00\n" +
+                "MlsG9RyIwpJeQqoCvsla,Teide National Park,30.00\n" +
+                "MlsG9RyIwpJeQqoCvsla,Masca Valley Hike,60.00\n" +
+                "MluTdWgSgUFpxlkkjTk0,Capri Island Tour,90.00\n" +
+                "MluTdWgSgUFpxlkkjTk0,Pompeii and Herculaneum Excursion,75.00\n" +
+                "MluTdWgSgUFpxlkkjTk0,Amalfi Coast Drive,50.00\n" +
+                "Was836RhhFygtKSKlCif,Siam Park,50.00\n" +
+                "Was836RhhFygtKSKlCif,Jeep Safari,80.00\n" +
+                "Was836RhhFygtKSKlCif,Submarine Safari,55.00\n" +
+                "euv4ft21bCrWb7dIyJpP,Capri Island Tour,90.00\n" +
+                "euv4ft21bCrWb7dIyJpP,Pompeii and Herculaneum Excursion,75.00\n" +
+                "euv4ft21bCrWb7dIyJpP,Amalfi Coast Drive,50.00\n" +
+                "i81oOypy1NnbI22C5N4L,Capri Island Tour,90.00\n" +
+                "i81oOypy1NnbI22C5N4L,Pompeii and Herculaneum Excursion,75.00\n" +
+                "i81oOypy1NnbI22C5N4L,Amalfi Coast Drive,50.00\n" +
+                "ir0dfyTwHtKI8nPxWqeC,Loro Parque,45.00\n" +
+                "ir0dfyTwHtKI8nPxWqeC,Teide National Park,30.00\n" +
+                "ir0dfyTwHtKI8nPxWqeC,Whale Watching Tour,50.00\n" +
+                "oObAhtoW5JD5xCxLYl9A,La Maddalena Archipelago,70.00\n" +
+                "oObAhtoW5JD5xCxLYl9A,Olbia City Tour,30.00\n" +
+                "oObAhtoW5JD5xCxLYl9A,Tavolara Island,55.00\n" +
+                "qARUCx54uknZuy661qmR,Jungfraujoch Excursion,180.00\n" +
+                "qARUCx54uknZuy661qmR,Trümmelbach Falls,25.00\n" +
+                "qARUCx54uknZuy661qmR,Lake Thun Cruise,45.00\n" +
+                "xEv9G5EZfBTzMMgJn7NC,Snorkeling Adventure,60.00\n" +
+                "xEv9G5EZfBTzMMgJn7NC,Quad Bike Safari,80.00\n" +
+                "xEv9G5EZfBTzMMgJn7NC,Camel Ride,45.00\n" +
+                "zrpqKXdm24hiuQQBT8Ic,Loro Parque,45.00\n" +
+                "zrpqKXdm24hiuQQBT8Ic,Teide National Park,30.00\n" +
+                "zrpqKXdm24hiuQQBT8Ic,Whale Watching Tour,50.00"
+
+        val db = FirebaseFirestore.getInstance()
+        val currentUserID = FirebaseAuth.getInstance().currentUser!!.uid
+
+        val excursions = data.split("\n")
+
+        for (excursion in excursions) {
+            val excursionData = excursion.split(",").map { it.trim() }
+            val destinationID = excursionData[0]
+            val name = excursionData[1]
+            val price = excursionData[2].toDouble()
+
+            val excursionMap = hashMapOf(
+                "destination_id" to destinationID,
+                "user_id" to currentUserID,
+                "name" to name,
+                "price" to price
+            )
+
+            db.collection("Excursions")
+                .add(excursionMap)
+                .addOnSuccessListener {
+                    println("Excursion added successfully: $name")
+                }
+                .addOnFailureListener { e ->
+                    println("Error adding excursion: ${e.message}")
+                }
+        }
+    }
 
 
 }

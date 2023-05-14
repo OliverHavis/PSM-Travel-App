@@ -1,13 +1,13 @@
 package com.example.psm
 
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Bundle
+import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import android.graphics.Rect
-import android.view.View
-import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.example.psm.helpers.FirebaseHelper
 
@@ -27,7 +27,6 @@ class SavedActivity : ComponentActivity() {
 
         hideStatusBar()
         setupUI()
-        setupVariables()
     }
 
     fun setupUI() {
@@ -80,27 +79,7 @@ class SavedActivity : ComponentActivity() {
 
         allUkAirports = ukAirports + additionalAirports
 
-        // Getting 'Top Destinations' from Firebase
-        db.getSaves(
-            onSuccess = { saves ->
-                adapter = SavedAdapter(this)
-                recyclerView.adapter = adapter
-                val spacingInPixels = resources.getDimensionPixelSize(R.dimen.item_spacing)
-                recyclerView.addItemDecoration(SpaceItemDecoration(spacingInPixels))
-                recyclerView.layoutManager = LinearLayoutManager(this)
-
-                adapter.setData(saves)
-            },
-            onFailure = {
-                Toast.makeText(this, "Failed to get top destinations", Toast.LENGTH_SHORT).show()
-            }
-        )
-
-
-
-    }
-
-    fun setupVariables() {
+        updateSaved()
     }
 
 
@@ -126,6 +105,27 @@ class SavedActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
     }
+
+    fun updateSaved() {
+        val recyclerView = findViewById<RecyclerView>(R.id.savedRecyclerView)
+
+        adapter = SavedAdapter(this)
+        recyclerView.adapter = adapter
+        val spacingInPixels = resources.getDimensionPixelSize(R.dimen.item_spacing)
+        recyclerView.addItemDecoration(SpaceItemDecoration(spacingInPixels))
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        // Getting 'Top Destinations' from Firebase
+        db.getSaves(
+            onSuccess = { saves ->
+                adapter.setData(saves)
+            },
+            onFailure = {
+                Toast.makeText(this, "Failed to get top destinations", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
 }
 
 class SpaceItemDecoration(private val space: Int) : RecyclerView.ItemDecoration() {

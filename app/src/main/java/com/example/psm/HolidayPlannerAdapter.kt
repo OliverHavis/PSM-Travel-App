@@ -1,5 +1,7 @@
 package com.example.psm
 
+import android.app.Dialog
+import android.content.Context
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.RelativeSizeSpan
@@ -8,7 +10,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.RatingBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.psm.helpers.FirebaseHelper
 import com.example.psm.models.Destination
@@ -95,6 +103,15 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
             holder.destinationBoard.text = "Room Only"
         }
 
+        // Get the current month
+        val currentMonth = extractMonth(queryDate)
+
+        val isPeakSeason = destination.getPeakSeason().contains(currentMonth)
+
+        if (isPeakSeason) {
+            totalPrice *= 1.1
+        }
+
         if (destination.getDiscount() > 0) {
             val discountedPrice = totalPrice - destination.getDiscount()
             val originalPricePerPerson = totalPrice / partySize
@@ -106,6 +123,8 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
             val formattedNormalPrice = String.format("%.2f", originalPricePerPerson)
             val formattedDiscountedPrice = String.format("%.2f", discountedPricePerPerson)
 
+            totalPrice = discountedPricePerPerson * partySize
+
             val displayPrice = "£${formattedNormalPrice}PP £${formattedDiscountedPrice}PP"
 
             val spannableString = SpannableString(displayPrice)
@@ -115,12 +134,12 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
             spannableString.setSpan(strikeThroughSpan, 0, formattedNormalPrice.length + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             spannableString.setSpan(smallerFontSizeSpan, 0, formattedNormalPrice.length + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-            holder.destinationDiscount.text = "Was £$formattedTotalPrice, Save £${formattedMoneySaved}PP"
-            holder.destinationPriceBtn.text = spannableString
+            holder.destinationDiscount?.text = "Was £$formattedTotalPrice, Save £${formattedMoneySaved}PP"
+            holder.destinationPriceBtn?.text = spannableString
 
         } else {
-            holder.destinationDiscount.visibility = View.GONE
-            holder.destinationPriceBtn.text = "£${String.format("%.2f", totalPrice)}"
+            holder.destinationDiscount?.visibility = View.GONE
+            holder.destinationPriceBtn?.text = "£${String.format("%.2f", totalPrice)}"
         }
 
         // Listeners
@@ -163,6 +182,10 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
                     }
                 )
             }
+        }
+
+        holder.destinationPriceBtn.setOnClickListener {
+            showBookingDialog(holder.itemView.context, destination, totalPrice)
         }
     }
 
@@ -210,9 +233,108 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
         notifyDataSetChanged()
     }
 
+    /**
+     * Extracts the month from a date
+     *
+     * @param date The date to extract the month from
+     * @return The month in the format "January"
+     */
+    fun extractMonth(date: String): String {
+        val dateParts = date.split("/")
+        val monthIndex = dateParts[1].toInt() - 1 // Months are 0-indexed
+        val monthNames = listOf(
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        )
+        return monthNames[monthIndex]
+    }
+
     companion object {
         private const val VIEW_TYPE_FIRST_CARD = 0
         private const val VIEW_TYPE_NORMAL_CARD = 1
+    }
+
+    // Dialogs
+    fun showBookingDialog(context: Context, destination: Destination, totalPrice: Double) {
+        // Create a dialog window with a custom layout for the card info form
+        val dialog = Dialog(context)
+        dialog.setContentView(R.layout.dialog_booking)
+
+        val window = dialog.window
+        window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        // Find the form fields and buttons in the dialog layout
+        val peakSeason = dialog.findViewById<TextView>(R.id.peak_season_label)
+        val totalPriceLabel = dialog.findViewById<TextView>(R.id.total_costs_label)
+
+        val excursion1CheckBox = dialog.findViewById<CheckBox>(R.id.excursion1_checkbox)
+        val excursion2CheckBox = dialog.findViewById<CheckBox>(R.id.excursion2_checkbox)
+        val excursion3CheckBox = dialog.findViewById<CheckBox>(R.id.excursion3_checkbox)
+
+        db.getExcursions(
+            destination.getId(),
+            onSuccess = { excursions ->
+                Log.d("Excursions", excursions.toString())
+                if (excursions.size == 3) {
+                    excursion1CheckBox.text = "${excursions[0]["name"]} - £${String.format("%.2f", excursions[0]["price"] as Double)}"
+                    excursion1CheckBox.tag = excursions[0]["id"]
+                    excursion2CheckBox.text = "${excursions[1]["name"]} - £${String.format("%.2f", excursions[1]["price"] as Double)}"
+                    excursion2CheckBox.tag = excursions[1]["id"]
+                    excursion3CheckBox.text = "${excursions[2]["name"]} - £${String.format("%.2f", excursions[2]["price"] as Double)}"
+                    excursion3CheckBox.tag = excursions[2]["id"]
+                }
+            },
+            onFailure = {
+                Toast.makeText(context, "Failed to get excursions", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+
+        val currentMonth = extractMonth(queryDate)
+        if (destination.getPeakSeason().contains(currentMonth)) {
+            peakSeason.visibility = View.VISIBLE
+        }
+
+        totalPriceLabel.text = "Total: £${String.format("%.2f", totalPrice)}"
+
+        val buyBtn = dialog.findViewById<Button?>(R.id.buy_now_button)
+        val cancelBtn = dialog.findViewById<Button?>(R.id.cancel_button)
+        val extras = mutableListOf<String>()
+
+        buyBtn.setOnClickListener {
+            // Clear the list to avoid duplicates if the button is clicked multiple times
+            extras.clear()
+
+            if (excursion1CheckBox.isChecked) {
+                extras.add("Excursion 1")
+            }
+
+            if (excursion2CheckBox.isChecked) {
+                extras.add("Excursion 2")
+            }
+
+            if (excursion3CheckBox.isChecked) {
+                extras.add("Excursion 3")
+            }
+
+            // Print the selected excursions
+            for (extra in extras) {
+                println("Selected Excursion: $extra")
+            }
+
+            // Perform any additional actions with the selected excursions
+        }
+
+
+        cancelBtn.setOnClickListener{
+            dialog.dismiss()
+        }
+
+        // Show the dialog
+        dialog.show()
     }
 
 }
