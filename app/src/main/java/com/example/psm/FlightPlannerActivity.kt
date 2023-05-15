@@ -1,5 +1,6 @@
 package com.example.psm
 
+import Booking
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.app.DatePickerDialog
@@ -23,9 +24,6 @@ import androidx.activity.ComponentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.psm.helpers.FirebaseHelper
-import com.example.psm.models.Booking
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import java.util.Calendar
 
 
@@ -407,7 +405,6 @@ class FlightPlannerActivity : ComponentActivity() {
 
     fun bookNow(booking : Booking) {
         val intent = Intent(this, CheckOutActivity::class.java)
-        val booking = Json.encodeToString(booking)
         intent.putExtra("Booking", booking)
         startActivity(intent)
     }

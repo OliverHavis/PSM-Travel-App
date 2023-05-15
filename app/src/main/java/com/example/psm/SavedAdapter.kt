@@ -1,5 +1,8 @@
 package com.example.psm
 
+import Booking
+import android.app.Dialog
+import android.content.Context
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.RelativeSizeSpan
@@ -8,14 +11,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.RatingBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.example.psm.helpers.FirebaseHelper
+import com.example.psm.models.Destination
 import com.example.psm.models.Saved
 import com.squareup.picasso.Picasso
 
@@ -33,6 +32,12 @@ class SavedAdapter(val activity: SavedActivity) :
     private var queryNights : Int = 7
     private var queryAdults : Int = 2
     private var queryChildren : Int = 0
+
+    // Companion object
+    companion object {
+        private const val VIEW_TYPE_NO_BOOKINGS = 0
+        private const val VIEW_TYPE_HOLIDAY = 1
+    }
 
     /**
      * DestinationViewHolder is a ViewHolder class for RecyclerView that holds views for each card item.
@@ -197,6 +202,10 @@ class SavedAdapter(val activity: SavedActivity) :
                 }
             )
         }
+
+        holder.destinationPriceBtn?.setOnClickListener {
+            showBookingDialog(holder.itemView.context, destination, totalPrice, holder)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -207,6 +216,17 @@ class SavedAdapter(val activity: SavedActivity) :
     }
 
     // Helper methods
+    /**
+     * Generates a random date
+     *
+     * @return A random date in the format DD/MM/YYYY
+     */
+    fun randomDate(): String {
+        val day = (1..28).random()
+        val month = (1..12).random()
+        val year = (2023..2024).random()
+        return "$day/$month/$year"
+    }
     /**
      * Sets the data for the adapter
      *
@@ -229,18 +249,6 @@ class SavedAdapter(val activity: SavedActivity) :
     }
 
     /**
-     * Generates a random date
-     *
-     * @return A random date in the format DD/MM/YYYY
-     */
-    fun randomDate(): String {
-        val day = (1..28).random()
-        val month = (1..12).random()
-        val year = (2023..2024).random()
-        return "$day/$month/$year"
-    }
-
-    /**
      * Extracts the month from a date
      *
      * @param date The date to extract the month from
@@ -256,9 +264,124 @@ class SavedAdapter(val activity: SavedActivity) :
         return monthNames[monthIndex]
     }
 
-    companion object {
-        private const val VIEW_TYPE_NO_BOOKINGS = 0
-        private const val VIEW_TYPE_HOLIDAY = 1
-    }
+    // Dialogs
+    fun showBookingDialog(
+        context: Context,
+        destination: Destination,
+        totalPrice: Double,
+        holder: DestinationViewHolder
+    ) {
+        // Create a dialog window with a custom layout for the card info form
+        val dialog = Dialog(context)
+        dialog.setContentView(R.layout.dialog_booking)
 
+        val window = dialog.window
+        window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        // Find the form fields and buttons in the dialog layout
+        val peakSeason = dialog.findViewById<TextView>(R.id.peak_season_label)
+        val totalPriceLabel = dialog.findViewById<TextView>(R.id.total_costs_label)
+
+        val excursion1CheckBox = dialog.findViewById<CheckBox>(R.id.excursion1_checkbox)
+        val excursion2CheckBox = dialog.findViewById<CheckBox>(R.id.excursion2_checkbox)
+        val excursion3CheckBox = dialog.findViewById<CheckBox>(R.id.excursion3_checkbox)
+
+        db.getExcursions(
+            destination.getId(),
+            onSuccess = { excursions ->
+                Log.d("Excursions", excursions.toString())
+                if (excursions.size == 3) {
+                    excursion1CheckBox.text = "${excursions[0]["name"]} - £${String.format("%.2f", excursions[0]["price"] as Double)}"
+                    excursion1CheckBox.tag = excursions[0]["id"]
+                    excursion2CheckBox.text = "${excursions[1]["name"]} - £${String.format("%.2f", excursions[1]["price"] as Double)}"
+                    excursion2CheckBox.tag = excursions[1]["id"]
+                    excursion3CheckBox.text = "${excursions[2]["name"]} - £${String.format("%.2f", excursions[2]["price"] as Double)}"
+                    excursion3CheckBox.tag = excursions[2]["id"]
+                }
+            },
+            onFailure = {
+                Toast.makeText(context, "Failed to get excursions", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+
+        val currentMonth = extractMonth(queryDate)
+        if (destination.getPeakSeason().contains(currentMonth)) {
+            peakSeason.visibility = View.VISIBLE
+        }
+
+        totalPriceLabel.text = "Total: £${String.format("%.2f", totalPrice)}"
+
+        val buyBtn = dialog.findViewById<Button?>(R.id.buy_now_button)
+        val cancelBtn = dialog.findViewById<Button?>(R.id.cancel_button)
+        val selectedExtras = mutableListOf<String>()
+
+        buyBtn.setOnClickListener {
+            // Clear the list to avoid duplicates if the button is clicked multiple times
+            selectedExtras.clear()
+
+            if (excursion1CheckBox.isChecked) {
+                selectedExtras.add(excursion1CheckBox.tag.toString())
+            }
+
+            if (excursion2CheckBox.isChecked) {
+                selectedExtras.add(excursion2CheckBox.tag.toString())
+            }
+
+            if (excursion3CheckBox.isChecked) {
+                selectedExtras.add(excursion3CheckBox.tag.toString())
+            }
+
+            val booking = Booking(
+                destination,
+                holder.destinationDepartureAirport?.text as String,
+                queryTo,
+                queryDate,
+                queryNights,
+                queryAdults,
+                queryChildren,
+                selectedExtras,
+                totalPrice
+            )
+
+            db.removeFromFavorites(
+                destination,
+                queryFrom,
+                queryTo,
+                queryDate,
+                queryNights,
+                queryAdults,
+                queryChildren,
+                onSuccess = {
+                    Toast.makeText(
+                        holder.itemView.context,
+                        "Removed from favorites",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    removeItem(holder.adapterPosition)
+                },
+                onFailure = {
+                    Toast.makeText(
+                        holder.itemView.context,
+                        "Failed to remove from favorites",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            )
+
+            activity.bookNow(booking)
+        }
+
+
+        cancelBtn.setOnClickListener{
+            dialog.dismiss()
+        }
+
+        // Show the dialog
+        dialog.show()
+    }
 }

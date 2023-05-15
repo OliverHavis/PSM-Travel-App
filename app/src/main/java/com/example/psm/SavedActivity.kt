@@ -1,5 +1,7 @@
 package com.example.psm
 
+import Booking
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
@@ -124,6 +126,12 @@ class SavedActivity : ComponentActivity() {
                 Toast.makeText(this, "Failed to get top destinations", Toast.LENGTH_SHORT).show()
             }
         )
+    }
+
+    fun bookNow(booking : Booking) {
+        val intent = Intent(this, CheckOutActivity::class.java)
+        intent.putExtra("Booking", booking)
+        startActivity(intent)
     }
 
 }

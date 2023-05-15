@@ -299,34 +299,6 @@
                         android:layout_weight="1"
                         android:orientation="vertical">
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:textAlignment="textEnd"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:text="Cave Exploring +£40.00"
-                            android:textSize="16sp"
-                            android:layout_marginTop="5dp"
-                            android:textColor="@color/dark_blue"/>
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:textAlignment="textEnd"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:text="Cave Exploring +£40.00"
-                            android:textSize="16sp"
-                            android:layout_marginTop="5dp"
-                            android:textColor="@color/dark_blue"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:textAlignment="textEnd"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:text="Cave Exploring +£40.00"
-                            android:textSize="16sp"
-                            android:layout_marginTop="5dp"
-                            android:textColor="@color/dark_blue"/>
 
                     </LinearLayout>
 
@@ -434,6 +406,14 @@
 
 
             </TableLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Your default card will be used as payment"
+                android:textSize="16sp"
+                android:textColor="@color/dark_blue"
+                android:layout_marginTop="15dp"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"

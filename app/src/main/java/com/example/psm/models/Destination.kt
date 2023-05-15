@@ -1,5 +1,7 @@
 package com.example.psm.models
 
+import android.os.Parcel
+import android.os.Parcelable
 import java.util.*
 
 class Destination(
@@ -12,7 +14,44 @@ class Destination(
     private var discount: Double = 0.0,
     private val peakSeason: String,
     private val rating: Double
-) {
+) : Parcelable {
+    constructor(parcel: Parcel) : this(
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.createStringArrayList()!!,
+        parcel.readDouble(),
+        parcel.readDouble(),
+        parcel.readString()!!,
+        parcel.readDouble(),
+        parcel.readString()!!,
+        parcel.readDouble()
+    )
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(id)
+        parcel.writeString(name)
+        parcel.writeStringList(location)
+        parcel.writeDouble(pricePerAdult)
+        parcel.writeDouble(pricePerChild)
+        parcel.writeString(boardType)
+        parcel.writeDouble(discount)
+        parcel.writeString(peakSeason)
+        parcel.writeDouble(rating)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Destination> {
+        override fun createFromParcel(parcel: Parcel): Destination {
+            return Destination(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Destination?> {
+            return arrayOfNulls(size)
+        }
+    }
     // Getters
     fun getId(): String {
         return id

@@ -16,6 +16,9 @@
         android:theme="@style/Theme.PSM"
         tools:targetApi="31">
         <activity
+            android:name=".BookedHolidaysActivity"
+            android:exported="false" />
+        <activity
             android:name=".CheckOutActivity"
             android:exported="false" />
         <activity

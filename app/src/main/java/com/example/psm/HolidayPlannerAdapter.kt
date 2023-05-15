@@ -19,13 +19,14 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.psm.helpers.FirebaseHelper
-import com.example.psm.models.Booking
+import Booking
 import com.example.psm.models.Destination
 import com.squareup.picasso.Picasso
 
 class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
     RecyclerView.Adapter<HolidayPlannerAdapter.DestinationViewHolder>() {
 
+    // Variables
     private val db = FirebaseHelper()
     private var destinations = mutableListOf<Destination>()
 
@@ -37,7 +38,16 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
     private var queryAdults : Int = 2
     private var queryChildren : Int = 0
 
+    // Companion object
+    companion object {
+        private const val VIEW_TYPE_FIRST_CARD = 0
+        private const val VIEW_TYPE_NORMAL_CARD = 1
+    }
 
+    /**
+     * DestinationViewHolder is a ViewHolder class for RecyclerView that holds views for each card item.
+     * @property itemView: View of each card item.
+     */
     inner class DestinationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         // Define the views for each card item
         val destinationFavorite : ImageButton = itemView.findViewById(R.id.destination_favorite)
@@ -52,6 +62,7 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
         val destinationPriceBtn : Button = itemView.findViewById(R.id.destination_price_button)
     }
 
+    // Adapter lifecycle methods
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DestinationViewHolder {
         // Inflate the appropriate layout based on the view type
         val layoutResId = R.layout.item_holiday
@@ -186,15 +197,8 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
         }
 
         holder.destinationPriceBtn.setOnClickListener {
-            showBookingDialog(holder.itemView.context, destination, totalPrice)
+            showBookingDialog(holder.itemView.context, destination, totalPrice, holder)
         }
-    }
-
-    fun randomDate(): String {
-        val day = (1..28).random()
-        val month = (1..12).random()
-        val year = (2023..2024).random()
-        return "$day/$month/$year"
     }
 
     override fun getItemCount(): Int {
@@ -211,11 +215,39 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
         }
     }
 
+    // Helper Functions
+    /**
+     * Generates a random date in the future
+     *
+     * @return String
+     */
+    fun randomDate(): String {
+        val day = (1..28).random()
+        val month = (1..12).random()
+        val year = (2023..2024).random()
+        return "$day/$month/$year"
+    }
+
+    /**
+     * Sets the data for the adapter
+     *
+     * @param destinations The list of destinations to set
+     */
     fun setData(destinations: List<Destination>) {
         this.destinations = destinations as MutableList<Destination>
         notifyDataSetChanged()
     }
 
+    /**
+     * Sets the query data for the adapter
+     *
+     * @param querySelectedFrom The selected departure airport
+     * @param querySelectedDestination The selected destination
+     * @param departureDate The selected departure date
+     * @param nights The selected number of nights
+     * @param adultsNum The selected number of adults
+     * @param childrenNum The selected number of children
+     */
     fun setQueryData(
         querySelectedFrom: String,
         querySelectedDestination: String,
@@ -250,13 +282,13 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
         return monthNames[monthIndex]
     }
 
-    companion object {
-        private const val VIEW_TYPE_FIRST_CARD = 0
-        private const val VIEW_TYPE_NORMAL_CARD = 1
-    }
-
     // Dialogs
-    fun showBookingDialog(context: Context, destination: Destination, totalPrice: Double) {
+    fun showBookingDialog(
+        context: Context,
+        destination: Destination,
+        totalPrice: Double,
+        holder: DestinationViewHolder
+    ) {
         // Create a dialog window with a custom layout for the card info form
         val dialog = Dialog(context)
         dialog.setContentView(R.layout.dialog_booking)
@@ -274,8 +306,6 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
         val excursion1CheckBox = dialog.findViewById<CheckBox>(R.id.excursion1_checkbox)
         val excursion2CheckBox = dialog.findViewById<CheckBox>(R.id.excursion2_checkbox)
         val excursion3CheckBox = dialog.findViewById<CheckBox>(R.id.excursion3_checkbox)
-
-        //TODO: Make booking and send to DB and pt this with save Adpater
 
         db.getExcursions(
             destination.getId(),
@@ -325,13 +355,14 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
 
             val booking = Booking(
                 destination,
-                queryFrom,
+                holder.destinationDepartureAirport.text as String,
                 queryTo,
                 queryDate,
                 queryNights,
                 queryAdults,
                 queryChildren,
-                selectedExtras
+                selectedExtras,
+                totalPrice
             )
 
             activity.bookNow(booking)

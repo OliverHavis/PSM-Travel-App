@@ -1,5 +1,6 @@
 package com.example.psm.helpers
 
+import Booking
 import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.net.Uri
@@ -785,6 +786,51 @@ class FirebaseHelper {
             .addOnFailureListener { exception ->
                 Log.d(TAG, "Error getting documents: ", exception)
                 onFailure(exception)
+            }
+    }
+
+    suspend fun getExcursion(id: String): Map<String, Any> {
+        val db = FirebaseFirestore.getInstance()
+        val collectionRef = db.collection("Excursions")
+
+        return try {
+            val result = collectionRef.document(id).get().await()
+            val excursion = mutableMapOf<String, Any>(
+                "id" to result.id,
+                "name" to result.data!!["name"] as String,
+                "price" to result.data!!["price"] as Double
+            )
+            excursion
+        } catch (exception: Exception) {
+            Log.d(TAG, "Error getting documents: ", exception)
+            throw exception
+        }
+    }
+
+    fun addBooking(booking: Booking, onSuccess: () -> Unit, onFailure: () -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val collectionRef = db.collection("Bookings")
+
+        val bookingMap = mutableMapOf<String, Any>(
+            "user_id" to FirebaseAuth.getInstance().currentUser!!.uid,
+            "destination_id" to booking.destination!!.getId(),
+            "excursion_ids" to booking.selectedExtras,
+            "from" to booking.queryFrom,
+            "date" to booking.queryDate,
+            "adults" to booking.queryAdults,
+            "children" to booking.queryChildren,
+            "nights" to booking.queryNights,
+            "total" to booking.totalPrice
+        )
+
+        collectionRef.add(bookingMap)
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error adding document", e)
+                onFailure()
             }
     }
 
