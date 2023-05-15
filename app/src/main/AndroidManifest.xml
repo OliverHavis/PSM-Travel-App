@@ -16,6 +16,9 @@
         android:theme="@style/Theme.PSM"
         tools:targetApi="31">
         <activity
+            android:name=".CheckOutActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
@@ -34,8 +37,8 @@
             android:exported="false" />
         <activity
             android:name=".MyProfileActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".FlightPlannerActivity"
             android:exported="false" />

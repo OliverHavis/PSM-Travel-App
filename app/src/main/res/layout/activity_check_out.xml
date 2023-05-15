@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:fitsSystemWindows="false">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/flightPlannerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:fitsSystemWindows="false">
+
+        <!--  Flight planner  -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardElevation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/BookingHeader"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:background="@drawable/cardview_background"
+                android:clipToOutline="true"
+                android:outlineProvider="background"
+                android:scaleType="centerCrop"
+                android:src="@drawable/fligher_planner_header" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="25dp"
+                android:layout_marginTop="45dp"
+                android:background="@drawable/rounded_action_bar"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="10dp"
+                    android:src="@drawable/ic_plane_ticket_blue" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/seperator" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Your getaway is just a few clicks away!"
+                        android:textColor="@color/dark_blue"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+        </androidx.cardview.widget.CardView>
+
+        <!--   Booking Details     -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="25dp"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@+id/cardView">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Booking Details"
+                android:textStyle="bold"
+                android:textSize="25dp"
+                android:textColor="@color/dark_blue"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="@color/black"/>
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="From: "
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+
+                    <TextView
+                        android:id="@+id/bookingFrom"
+                        android:layout_width="match_parent"
+                        android:textAlignment="textEnd"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Gatwick"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="When: "
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+
+                    <TextView
+                        android:id="@+id/bookingWhen"
+                        android:layout_width="match_parent"
+                        android:textAlignment="textEnd"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Italy"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Passengers: "
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+
+                    <TextView
+                        android:id="@+id/bookingPassengers"
+                        android:layout_width="match_parent"
+                        android:textAlignment="textEnd"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Italy"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+
+                </TableRow>
+            </TableLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="@color/black"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Destination Details"
+                android:textStyle="bold"
+                android:textSize="25dp"
+                android:layout_marginTop="15dp"
+                android:textColor="@color/dark_blue"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="@color/black"/>
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hotel: "
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+
+                    <TextView
+                        android:id="@+id/bookingHotel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Italy"
+                        android:textAlignment="textEnd"
+                        android:layout_weight="1"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Location: "
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+
+                    <TextView
+                        android:id="@+id/bookingLocation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Italy"
+                        android:textAlignment="textEnd"
+                        android:layout_weight="1"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nights staying: "
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+
+                    <TextView
+                        android:id="@+id/bookingNights"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Italy"
+                        android:textSize="16sp"
+                        android:textAlignment="textEnd"
+                        android:layout_weight="1"
+                        android:textColor="@color/dark_blue"/>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Excurstions: "
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+
+                    <LinearLayout
+                        android:id="@+id/bookingSelectedExcursions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="textEnd"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:textAlignment="textEnd"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:text="Cave Exploring +£40.00"
+                            android:textSize="16sp"
+                            android:layout_marginTop="5dp"
+                            android:textColor="@color/dark_blue"/>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:textAlignment="textEnd"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:text="Cave Exploring +£40.00"
+                            android:textSize="16sp"
+                            android:layout_marginTop="5dp"
+                            android:textColor="@color/dark_blue"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:textAlignment="textEnd"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:text="Cave Exploring +£40.00"
+                            android:textSize="16sp"
+                            android:layout_marginTop="5dp"
+                            android:textColor="@color/dark_blue"/>
+
+                    </LinearLayout>
+
+                </TableRow>
+
+
+            </TableLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="@color/black"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Price Details"
+                android:textStyle="bold"
+                android:textSize="25dp"
+                android:layout_marginTop="15dp"
+                android:textColor="@color/dark_blue"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="@color/black"/>
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Holiday Price: "
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+
+                    <TextView
+                        android:id="@+id/bookingPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:text="£1000.00"
+                        android:textSize="16sp"
+                        android:layout_weight="1"
+                        android:textColor="@color/dark_blue"/>
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Extras: "
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+
+                    <TextView
+                        android:id="@+id/bookingExtrasPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:text="+£120.00"
+                        android:textSize="16sp"
+                        android:layout_weight="1"
+                        android:textColor="@color/dark_blue"/>
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total: "
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+
+                    <TextView
+                        android:id="@+id/bookingTotalPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:text="+£120.00"
+                        android:layout_weight="1"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_blue"/>
+                </TableRow>
+
+
+            </TableLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="15dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/buy_now_button"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_height="wrap_content"
+                    android:text="Buy Now"
+                    android:background="@drawable/rounded_button_price"
+                    android:textColor="@color/white"
+                    android:padding="16dp"
+                    android:layout_marginRight="5dp"/>
+
+                <Button
+                    android:id="@+id/cancel_button"
+                    android:layout_width="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_height="wrap_content"
+                    android:text="Cancel"
+                    android:textColor="@color/dark_blue"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:padding="16dp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

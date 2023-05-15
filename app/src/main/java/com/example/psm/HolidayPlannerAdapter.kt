@@ -19,6 +19,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.psm.helpers.FirebaseHelper
+import com.example.psm.models.Booking
 import com.example.psm.models.Destination
 import com.squareup.picasso.Picasso
 
@@ -274,6 +275,8 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
         val excursion2CheckBox = dialog.findViewById<CheckBox>(R.id.excursion2_checkbox)
         val excursion3CheckBox = dialog.findViewById<CheckBox>(R.id.excursion3_checkbox)
 
+        //TODO: Make booking and send to DB and pt this with save Adpater
+
         db.getExcursions(
             destination.getId(),
             onSuccess = { excursions ->
@@ -302,30 +305,36 @@ class HolidayPlannerAdapter(val activity: FlightPlannerActivity) :
 
         val buyBtn = dialog.findViewById<Button?>(R.id.buy_now_button)
         val cancelBtn = dialog.findViewById<Button?>(R.id.cancel_button)
-        val extras = mutableListOf<String>()
+        val selectedExtras = mutableListOf<String>()
 
         buyBtn.setOnClickListener {
             // Clear the list to avoid duplicates if the button is clicked multiple times
-            extras.clear()
+            selectedExtras.clear()
 
             if (excursion1CheckBox.isChecked) {
-                extras.add("Excursion 1")
+                selectedExtras.add(excursion1CheckBox.tag.toString())
             }
 
             if (excursion2CheckBox.isChecked) {
-                extras.add("Excursion 2")
+                selectedExtras.add(excursion2CheckBox.tag.toString())
             }
 
             if (excursion3CheckBox.isChecked) {
-                extras.add("Excursion 3")
+                selectedExtras.add(excursion3CheckBox.tag.toString())
             }
 
-            // Print the selected excursions
-            for (extra in extras) {
-                println("Selected Excursion: $extra")
-            }
+            val booking = Booking(
+                destination,
+                queryFrom,
+                queryTo,
+                queryDate,
+                queryNights,
+                queryAdults,
+                queryChildren,
+                selectedExtras
+            )
 
-            // Perform any additional actions with the selected excursions
+            activity.bookNow(booking)
         }
 
 

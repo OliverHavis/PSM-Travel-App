@@ -3,19 +3,30 @@ package com.example.psm
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.view.WindowManager
-import androidx.activity.ComponentActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import android.graphics.Rect
 import android.view.View
 import android.view.ViewTreeObserver
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.Spinner
+import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.psm.helpers.FirebaseHelper
-import java.util.*
+import com.example.psm.models.Booking
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.util.Calendar
 
 
 class FlightPlannerActivity : ComponentActivity() {
@@ -394,6 +405,12 @@ class FlightPlannerActivity : ComponentActivity() {
         animatorSet.start()
     }
 
+    fun bookNow(booking : Booking) {
+        val intent = Intent(this, CheckOutActivity::class.java)
+        val booking = Json.encodeToString(booking)
+        intent.putExtra("Booking", booking)
+        startActivity(intent)
+    }
 
     private fun finishWithAnimation() {
         finish()
