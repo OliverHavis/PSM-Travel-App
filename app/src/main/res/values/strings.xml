@@ -22,6 +22,7 @@
     <string name="nights">Nights</string>
     <string name="no_of_adults">No. of Adults</string>
     <string name="no_of_children">No. of Children</string>
+    <string name="download_profile">Download Profile</string>
 
     <!--  Make me a string array of country  -->
     <string-array name="country_names">

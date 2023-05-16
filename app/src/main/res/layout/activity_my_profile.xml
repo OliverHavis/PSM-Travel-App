@@ -34,7 +34,7 @@
                 android:id="@+id/user_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Weeboo Wooboo"
+                android:text="John Doe"
                 android:textSize="20sp"
                 android:textColor="@color/white"
                 android:textStyle="bold" />
@@ -43,7 +43,7 @@
                 android:id="@+id/user_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="MelliehaJane@example.com"
+                android:text=""
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:textColor="@color/white"
@@ -84,10 +84,28 @@
 
     <!--  logout Button  -->
     <Button
+        android:id="@+id/download_accountBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:background="#00000000"
+        android:padding="10dp"
+        android:text="@string/download_profile"
+        android:textAllCaps="false"
+        android:textAppearance="@style/Widget.AppCompat.Spinner.Underlined"
+        android:layout_gravity="center"
+        android:textColor="@color/dark_blue"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/account_info_container" />
+
+    <!--  logout Button  -->
+    <Button
         android:id="@+id/logout_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="5dp"
         android:background="@drawable/rounded_button"
         android:padding="10dp"
         android:text="Logout"
@@ -96,7 +114,7 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/account_info_container" />
+        app:layout_constraintTop_toBottomOf="@+id/download_accountBtn" />
 
     <!--  NestedScrollView  -->
     <androidx.core.widget.NestedScrollView
