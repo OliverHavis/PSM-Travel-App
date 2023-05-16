@@ -5,14 +5,12 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.drawable.Animatable
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.appcompat.widget.Toolbar
@@ -38,6 +36,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var screen: ConstraintLayout
     private lateinit var myProfileBtn: ImageButton
     private lateinit var flightPlannerBtn: ImageButton
+    private lateinit var bookedBtn: ImageButton
     private lateinit var savedBtn: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +54,7 @@ class MainActivity : ComponentActivity() {
         display_name = findViewById<TextView>(R.id.display_name)
         myProfileBtn = findViewById<ImageButton>(R.id.user_icon)
         flightPlannerBtn = findViewById<ImageButton>(R.id.plane_icon)
+        bookedBtn = findViewById<ImageButton>(R.id.tag_icon)
         savedBtn = findViewById<ImageButton>(R.id.heart_icon)
 
         // setup View
@@ -217,9 +217,20 @@ class MainActivity : ComponentActivity() {
         }
 
         /**
+         * Opens the Booked Holidays activity.
+         *
+         * @see BookedHolidaysActivity
+         */
+        bookedBtn.setOnClickListener {
+            val intent = Intent(this, BookedHolidaysActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top)
+        }
+
+        /**
          * Opens the Saved Holidays activity.
          *
-         * @see FlightTrackerActivity
+         * @see SavedActivity
          */
         savedBtn.setOnClickListener {
             val intent = Intent(this, SavedActivity::class.java)
