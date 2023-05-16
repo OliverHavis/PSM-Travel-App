@@ -3,7 +3,7 @@ import android.os.Parcelable
 import com.example.psm.models.Destination
 
 class Booking(
-    val destination: Destination?,
+    val destination: Destination,
     val queryFrom: String,
     val queryTo: String,
     val queryDate: String,
@@ -43,17 +43,19 @@ class Booking(
             parcel.readStringList(selectedExtras)
             val totalPrice = parcel.readDouble()
 
-            return Booking(
-                destination = destination,
-                queryFrom = queryFrom!!,
-                queryTo = queryTo!!,
-                queryDate = queryDate!!,
-                queryNights = queryNights,
-                queryAdults = queryAdults,
-                queryChildren = queryChildren,
-                selectedExtras = selectedExtras,
-                totalPrice = totalPrice
-            )
+            return destination?.let {
+                Booking(
+                    destination = it,
+                    queryFrom = queryFrom!!,
+                    queryTo = queryTo!!,
+                    queryDate = queryDate!!,
+                    queryNights = queryNights,
+                    queryAdults = queryAdults,
+                    queryChildren = queryChildren,
+                    selectedExtras = selectedExtras,
+                    totalPrice = totalPrice
+                )
+            }!!
         }
 
 

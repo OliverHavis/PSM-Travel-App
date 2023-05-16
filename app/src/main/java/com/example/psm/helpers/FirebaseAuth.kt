@@ -16,6 +16,9 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.io.*
 import java.nio.charset.StandardCharsets
@@ -832,6 +835,73 @@ class FirebaseHelper {
                 Log.w(TAG, "Error adding document", e)
                 onFailure()
             }
+    }
+
+    fun getBookings (onSuccess: (List<Booking>) -> Unit, onFailure: () -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val collectionRef = db.collection("Bookings")
+
+        collectionRef.whereEqualTo("user_id", FirebaseAuth.getInstance().currentUser!!.uid)
+            .get()
+            .addOnSuccessListener { result ->
+                CoroutineScope(Dispatchers.Main).launch {
+                    val bookings = mutableListOf<Booking>()
+                    for (document in result) {
+                        Log.d(TAG, "${document.id} => ${document.data}")
+
+                        // Get the destination
+
+                        val destination = getDestination(document.data["destination_id"] as String)
+
+                        val adults = (document.data["adults"] as Long).toInt()
+                        val children = (document.data["children"] as Long).toInt()
+                        val nights = (document.data["nights"] as Long).toInt()
+
+                        val booking = Booking(
+                            destination,
+                            document.data["from"] as String,
+                            "",
+                            document.data["date"] as String,
+                            adults,
+                            children,
+                            nights,
+                            document.data["excursion_ids"] as List<String>? ?: listOf<String>(),
+                            document.data["total"] as Double
+                        )
+
+                        println(booking)
+                        bookings.add(booking)
+                    }
+                    onSuccess(bookings)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "Error getting documents: ", exception)
+                onFailure()
+            }
+    }
+
+    suspend fun getDestination(id: String): Destination {
+        val db = FirebaseFirestore.getInstance()
+
+        return try {
+            val result = db.collection("Destinations").document(id).get().await()
+            val destination = Destination(
+                result.id as String,
+                result.data!!["name"] as String,
+                result.data!!["location"] as List<String>,
+                result.data!!["pricePerAdult"] as Double,
+                result.data!!["pricePerChild"] as Double,
+                result.data!!["boardType"] as String,
+                result.data!!["discount"] as Double,
+                result.data!!["peakSeason"] as String,
+                result.data!!["rating"] as Double,
+            )
+            destination
+        } catch (exception: Exception) {
+            Log.d(TAG, "Error getting documents: ", exception)
+            throw exception
+        }
     }
 
     fun importExcursionsToFirestore() {

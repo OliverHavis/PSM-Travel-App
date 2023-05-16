@@ -132,6 +132,30 @@
                     android:textSize="10dp" />
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/excursionList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Excursions:"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="16dp" />
+
+                <LinearLayout
+                    android:id="@+id/excursionItemsList"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:orientation="vertical">
+                </LinearLayout>
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/destination_discount"
                 android:layout_width="match_parent"
