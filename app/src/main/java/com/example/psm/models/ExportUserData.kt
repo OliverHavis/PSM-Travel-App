@@ -70,44 +70,15 @@ class ExportUserData(private var context: Context, private var user: User) {
 
     }
 
-    /**
-     * Create a PDF file using the iText library
-     */
-    fun createPdf() : String {
-        println("Creating PDF file")
-        // Create a file name
-        val fileName = "${user.getFirstName()}-${user.getLastName()}.pdf"
-        val filePath = getFilePath(fileName)
-
-        // Create a new PDF document
-        val pdfWriter = PdfWriter(FileOutputStream(filePath))
-        val pdfDocument = PdfDocument(pdfWriter)
-
-        // Create a new document to add content
-        val document = Document(pdfDocument)
-
-        // Add content to the document
-        val paragraph = Paragraph("Hello, World!")
-        document.add(paragraph)
-
-        // Close the document
-        document.close()
-
-        // Open the generated PDF file
-        return filePath
+    fun getCards(): List<Card> {
+        return cards
     }
 
-    /**
-     * Get the file path for the PDF file
-     */
-    private fun getFilePath(fileName: String): String {
-        val directory = File(
-            context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
-            "PDFs"
-        )
-        if (!directory.exists()) {
-            directory.mkdirs()
-        }
-        return File(directory, fileName).absolutePath
+    fun getSaves(): List<Saved> {
+        return saves
+    }
+
+    fun getBookings(): List<Booking> {
+        return bookings
     }
 }

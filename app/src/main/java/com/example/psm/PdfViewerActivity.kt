@@ -1,51 +1,68 @@
 package com.example.psm
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import com.example.psm.helpers.FirebaseHelper
+import com.example.psm.models.ExportUserData
+import com.example.psm.models.User
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class PdfViewerActivity : AppCompatActivity() {
+
+    private lateinit var db: FirebaseHelper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pdf_viewer)
 
-        val path = intent.getStringExtra("path")
+        db = FirebaseHelper()
+        var user : User? = null
+        CoroutineScope(Dispatchers.Main).launch {
+            user = db.getCurrentUser()!!
 
-        val webView = findViewById<WebView>(R.id.webView)
+            findViewById<TextView>(R.id.userTitleText).text = "${user!!.getFirstName()} ${user!!.getLastName()}'s Data"
 
-        val pdfPath = "file:/${path}"
+            val usersInfo = findViewById<LinearLayout>(R.id.usersInfoLayout)
 
-        val READ_EXTERNAL_STORAGE_REQUEST_CODE = 123
+            // user info
+            createTextView("First Name", user!!.getFirstName(), usersInfo)
+            createTextView("Last Name", user!!.getLastName(), usersInfo)
+            createTextView("Email", user!!.getEmail(), usersInfo)
+            createTextView("Phone Number", user!!.getPhone(), usersInfo)
+            user!!.getAddress()?.let { createTextView("Address", it, usersInfo) }
 
-        // Check if the READ_EXTERNAL_STORAGE permission is granted
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            // Permission not granted, request it
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), READ_EXTERNAL_STORAGE_REQUEST_CODE)
-        } else {
-            webView.settings.apply {
-                javaScriptEnabled = true
-                loadWithOverviewMode = true
-                useWideViewPort = true
-                setSupportZoom(true)
-                builtInZoomControls = true
-                displayZoomControls = false
-                cacheMode = WebSettings.LOAD_DEFAULT
-                domStorageEnabled = true
+            // Cards
+            CoroutineScope(Dispatchers.Main).launch {
+                val cardsInfo = findViewById<LinearLayout>(R.id.cardsInfoLayout)
+                db.getAllCards(
+                    onSuccess = { cards ->
+                        for (card in cards) {
+                            createTextView(
+                                card.getCardHolder(),
+                                "${card.getCardNumber()} (${card.getExpiryDate()})",
+                                cardsInfo
+                            )
+                        }
+                    },
+                    onFailure = { error ->
+                        createTextView("Cards", "No cards found", usersInfo)
+                    }
+                )
             }
-            webView.webViewClient = WebViewClient()
-            webView.loadUrl(pdfPath)
-
-            println(pdfPath)
-            println("https://docs.google.com/gview?embedded=true&url=$pdfPath")
-
-            // Ensure links open in the WebView instead of the default browser
-            webView.webViewClient = WebViewClient()
         }
+
+    }
+
+    fun createTextView(title: String, value: String, layout: LinearLayout) {
+        val textView = TextView(this)
+        textView.text = "$title: $value"
+        textView.textSize = 15f
+        textView.setTextColor(resources.getColor(R.color.dark_blue))
+        textView.setPadding(0, 0, 0, 20)
+        layout.addView(textView)
     }
 }

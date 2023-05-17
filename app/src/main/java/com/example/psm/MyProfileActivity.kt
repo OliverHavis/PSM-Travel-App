@@ -21,7 +21,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.example.psm.helpers.FirebaseHelper
-import com.example.psm.models.ExportUserData
 import com.example.psm.models.User
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -59,10 +58,7 @@ class MyProfileActivity : AppCompatActivity() {
 
         // basic listners
         findViewById<Button>(R.id.download_accountBtn).setOnClickListener {
-            val path = ExportUserData(this, user).createPdf()
-
             val intent = Intent(this, PdfViewerActivity::class.java)
-            intent.putExtra("path", path)
             startActivity(intent)
             overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top)
         }
