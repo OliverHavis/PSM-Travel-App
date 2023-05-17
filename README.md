@@ -15,9 +15,9 @@ This project is a travel app that allows users to search for a location and book
 - Select a location and see excursions available
 - Review/Make a booking
 - View all bookings
-- Countdown to next holiday
 
 ## Incomplete Features
+- Countdown to next holiday
 - Cruse Section (Viewing, booking and saving)
 - Password Reset/Change
 - Search functionality (Search for a location)
