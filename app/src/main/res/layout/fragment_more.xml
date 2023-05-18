@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--  logout Button  -->
+    <!--  Download Button  -->
     <Button
         android:id="@+id/download_accountBtn"
         android:layout_width="wrap_content"
@@ -19,7 +19,7 @@
         android:textSize="16sp"
         />
 
-    <!--  logout Button  -->
+    <!--  Delete Account Button  -->
     <Button
         android:id="@+id/delete_accountBtn"
         android:layout_width="wrap_content"
@@ -27,6 +27,21 @@
         android:background="#00000000"
         android:padding="10dp"
         android:text="@string/delete_account_and_all_information"
+        android:textAllCaps="false"
+        android:textAppearance="@style/Widget.AppCompat.Spinner.Underlined"
+        android:layout_gravity="center"
+        android:textColor="@color/dark_blue"
+        android:textSize="16sp"
+        />
+
+    <!--  Contact Button  -->
+    <Button
+        android:id="@+id/contact_accountBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#00000000"
+        android:padding="10dp"
+        android:text="Contact FLyLux"
         android:textAllCaps="false"
         android:textAppearance="@style/Widget.AppCompat.Spinner.Underlined"
         android:layout_gravity="center"
