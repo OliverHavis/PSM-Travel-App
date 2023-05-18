@@ -101,6 +101,31 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/registration_email_input" />
 
+    <LinearLayout
+        android:id="@+id/termsAndCondistionsLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/registration_password_input"
+        app:layout_constraintBottom_toTopOf="@id/register_button">
+
+        <CheckBox
+            android:id="@+id/termsAndConditionsCheck"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@android:color/white" />
+
+        <TextView
+            android:id="@+id/termsAndConditionsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Agree to our terms and conditions before continuing"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
     <Button
         android:id="@+id/register_button"
         android:layout_width="match_parent"

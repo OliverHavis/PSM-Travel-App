@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -26,6 +27,8 @@ class LoginActivity : AppCompatActivity() {
         val loginButton = findViewById<Button>(R.id.login_button)
         val emailInput = findViewById<EditText>(R.id.email_input)
         val passwordInput = findViewById<EditText>(R.id.password_input)
+        val termsCheckBox = findViewById<CheckBox>(R.id.termsAndConditionsCheck)
+        val termsText = findViewById<TextView>(R.id.termsAndConditionsText)
 
         loginButton.setOnClickListener {
             val email = emailInput.text.toString().trim()
@@ -44,6 +47,12 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            if (!termsCheckBox.isChecked) {
+                termsText.error = "You must agree to the terms and conditions"
+                termsText.requestFocus()
+                return@setOnClickListener
+            }
+
             db.signIn(
                 email = email,
                 password = password,
@@ -59,6 +68,11 @@ class LoginActivity : AppCompatActivity() {
         val register_link = findViewById<TextView>(R.id.register_link)
         register_link.setOnClickListener {
             val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
+        }
+
+        termsText.setOnClickListener {
+            val intent = Intent(this, TermsActivity::class.java)
             startActivity(intent)
         }
     }

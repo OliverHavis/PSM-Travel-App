@@ -5,10 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.psm.helpers.FirebaseHelper
 
@@ -34,6 +31,14 @@ class RegisterActivity : AppCompatActivity() {
         val registerButton = findViewById<Button>(R.id.register_button)
         val progressBar = findViewById<ProgressBar>(R.id.registration_progress_bar)
 
+        val termsCheckBox = findViewById<CheckBox>(R.id.termsAndConditionsCheck)
+        val termsText = findViewById<TextView>(R.id.termsAndConditionsText)
+
+        termsText.setOnClickListener {
+            val intent = Intent(this, TermsActivity::class.java)
+            startActivity(intent)
+        }
+
         registerButton.setOnClickListener {
             val firstName = firstNameInput.text.toString().trim()
             val lastName = lastNameInput.text.toString().trim()
@@ -42,6 +47,12 @@ class RegisterActivity : AppCompatActivity() {
             val password = passwordInput.text.toString().trim()
 
             progressBar.visibility = View.VISIBLE
+
+            if (!termsCheckBox.isChecked) {
+                termsText.error = "You must agree to the terms and conditions"
+                termsText.requestFocus()
+                return@setOnClickListener
+            }
 
             // Validate email and password
             if (isAnyFieldEmpty(firstName, lastName, email, password)) {

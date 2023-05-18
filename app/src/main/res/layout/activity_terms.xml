@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/sky_background"
+    android:padding="15dp"
+    tools:context=".TermsActivity">
+
+    <LinearLayout
+        android:id="@+id/termsAndCondistionsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_action_bar"
+        android:padding="25dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="25dp"
+            android:textColor="@color/dark_blue"
+            android:textStyle="bold"
+            android:text="Terms &amp; Comissions:"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="All data stored in the Flylux app is encrypted and stored onto a database using Google Firebase, this is also where user details, authentication (email/password) and app rules are stored. This helps ensure that only authorised users can access and modify user details, protecting against unauthorised access. Firebase complies with various industry standards and regulations, such as GDPR (General Data Protection Regulation), ISO 27001, SOC 1, SOC 2, and HIPAA. These certifications demonstrate Firebase's commitment to maintaining robust security practices and safeguarding user data. Additionally, Firebase provides scalable and dependable cloud infrastructure, guaranteeing user data is maintained securely and can handle high traffic volumes. It provides automatic data replication and backup features, minimising the risk of data loss and ensuring data availability. From a digital forensic perspective, firebase is essential for FlyLux to ensure the application adheres to encryption protocols to ensure that that data is transmitted securely between the user's device (when using the application) and Firebase servers."
+            android:textColor="@color/dark_blue"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
