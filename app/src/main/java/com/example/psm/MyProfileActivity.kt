@@ -2,12 +2,10 @@ package com.example.psm
 
 import android.app.Activity
 import android.app.Dialog
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.WindowManager
@@ -28,9 +26,6 @@ import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 class MyProfileActivity : AppCompatActivity() {
@@ -55,18 +50,6 @@ class MyProfileActivity : AppCompatActivity() {
         hideStatusBar()
         setupUI()
         setupTabs()
-
-        // basic listners
-        findViewById<Button>(R.id.download_accountBtn).setOnClickListener {
-            val intent = Intent(this, PdfViewerActivity::class.java)
-            startActivity(intent)
-            overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top)
-        }
-
-        findViewById<Button>(R.id.logout_button).setOnClickListener {//Logout
-            db.signOut()
-            finish()
-        }
 
         findViewById<ImageView>(R.id.profile_picture).setOnClickListener {// Profile Picture
             showProfilePictureDialog()
@@ -210,7 +193,7 @@ class MyProfileActivity : AppCompatActivity() {
 
         val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = if (position == 0) "Account Settings" else "Cards" // set tab text
+            tab.text = if (position == 0) "Account Settings" else if (position == 1) "Cards" else "More"// set tab text
         }.attach()
     }
 
@@ -237,12 +220,13 @@ class MyProfileActivity : AppCompatActivity() {
  */
 class MyPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle, private val activity: MyProfileActivity) : FragmentStateAdapter(fragmentManager, lifecycle) {
 
-    override fun getItemCount(): Int = 2 // number of tabs
+    override fun getItemCount(): Int = 3 // number of tabs
 
     override fun createFragment(position: Int): Fragment {
         return when(position) {
             0 -> AccountInfoFragment(activity)
             1 -> CardsFragment()
+            2 -> MoreFragment(activity)
             else -> throw IndexOutOfBoundsException()
         }
     }

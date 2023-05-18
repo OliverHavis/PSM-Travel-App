@@ -17,6 +17,9 @@ import com.example.psm.helpers.FirebaseHelper
 import com.example.psm.models.Destination
 import com.example.psm.models.Saved
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SavedAdapter(val activity: SavedActivity) :
     RecyclerView.Adapter<SavedAdapter.DestinationViewHolder>() {
@@ -204,7 +207,20 @@ class SavedAdapter(val activity: SavedActivity) :
         }
 
         holder.destinationPriceBtn?.setOnClickListener {
-            showBookingDialog(holder.itemView.context, destination, totalPrice, holder)
+            CoroutineScope(Dispatchers.Main).launch {
+                val currentUser = db.getCurrentUser()
+
+                if(currentUser == null) {
+                    Toast.makeText(
+                        holder.itemView.context,
+                        "Please login to book a holiday",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@launch
+                }
+
+                showBookingDialog(holder.itemView.context, destination, totalPrice, holder)
+            }
         }
     }
 

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--  logout Button  -->
+    <Button
+        android:id="@+id/download_accountBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#00000000"
+        android:padding="10dp"
+        android:text="@string/download_profile"
+        android:textAllCaps="false"
+        android:textAppearance="@style/Widget.AppCompat.Spinner.Underlined"
+        android:layout_gravity="center"
+        android:textColor="@color/dark_blue"
+        android:textSize="16sp"
+        />
+
+    <!--  logout Button  -->
+    <Button
+        android:id="@+id/delete_accountBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#00000000"
+        android:padding="10dp"
+        android:text="@string/delete_account_and_all_information"
+        android:textAllCaps="false"
+        android:textAppearance="@style/Widget.AppCompat.Spinner.Underlined"
+        android:layout_gravity="center"
+        android:textColor="@color/dark_blue"
+        android:textSize="16sp"
+        />
+
+    <!--  logout Button  -->
+    <Button
+        android:id="@+id/logout_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button"
+        android:padding="10dp"
+        android:text="@string/logout"
+        android:layout_gravity="center"
+        android:textColor="@color/dark_blue"
+        android:textSize="16sp"/>
+</LinearLayout>

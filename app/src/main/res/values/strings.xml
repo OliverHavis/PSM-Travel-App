@@ -23,6 +23,8 @@
     <string name="no_of_adults">No. of Adults</string>
     <string name="no_of_children">No. of Children</string>
     <string name="download_profile">Download Profile</string>
+    <string name="logout">Logout</string>
+    <string name="delete_account_and_all_information">Delete Account and all information</string>
 
     <!--  Make me a string array of country  -->
     <string-array name="country_names">

@@ -82,48 +82,13 @@
             android:src="@drawable/beach_background" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/buttonContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/account_info_container">
-        <!--  logout Button  -->
-        <Button
-            android:id="@+id/download_accountBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="#00000000"
-            android:padding="10dp"
-            android:text="@string/download_profile"
-            android:textAllCaps="false"
-            android:textAppearance="@style/Widget.AppCompat.Spinner.Underlined"
-            android:layout_gravity="center"
-            android:textColor="@color/dark_blue"
-            android:textSize="16sp"
-            />
-
-        <!--  logout Button  -->
-        <Button
-            android:id="@+id/logout_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/rounded_button"
-            android:padding="10dp"
-            android:text="Logout"
-            android:layout_gravity="center"
-            android:textColor="@color/dark_blue"
-            android:textSize="16sp"/>
-    </LinearLayout>
-
     <!--  NestedScrollView  -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nested_scroll_view"
+        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/buttonContainer">
+        app:layout_constraintTop_toBottomOf="@+id/account_info_container">
 
         <!--  FrameLayout  -->
         <FrameLayout

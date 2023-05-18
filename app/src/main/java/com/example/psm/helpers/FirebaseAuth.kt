@@ -20,6 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.io.*
 import java.nio.charset.StandardCharsets
 import javax.crypto.Cipher
@@ -906,45 +907,138 @@ class FirebaseHelper {
 
     fun importExcursionsToFirestore() {
 
-        val data = "A5tS0HLWX6Di4dcDUJ4M,Jungfraujoch Excursion,180.00\n" +
-                "A5tS0HLWX6Di4dcDUJ4M,Trümmelbach Falls,25.00\n" +
-                "A5tS0HLWX6Di4dcDUJ4M,Lake Thun Cruise,45.00\n" +
-                "DbAxCOsBC82Q1wTT42NJ,Palmitos Park,45.00\n" +
-                "DbAxCOsBC82Q1wTT42NJ,Jeep Safari,80.00\n" +
-                "DbAxCOsBC82Q1wTT42NJ,Scuba Diving,60.00\n" +
-                "HrPMgZnwMSIjO3BDrzkx,Loro Parque,45.00\n" +
-                "HrPMgZnwMSIjO3BDrzkx,Teide National Park,30.00\n" +
-                "HrPMgZnwMSIjO3BDrzkx,Whale Watching Tour,50.00\n" +
-                "MlsG9RyIwpJeQqoCvsla,Los Gigantes Boat Trip,40.00\n" +
-                "MlsG9RyIwpJeQqoCvsla,Teide National Park,30.00\n" +
-                "MlsG9RyIwpJeQqoCvsla,Masca Valley Hike,60.00\n" +
-                "MluTdWgSgUFpxlkkjTk0,Capri Island Tour,90.00\n" +
-                "MluTdWgSgUFpxlkkjTk0,Pompeii and Herculaneum Excursion,75.00\n" +
-                "MluTdWgSgUFpxlkkjTk0,Amalfi Coast Drive,50.00\n" +
-                "Was836RhhFygtKSKlCif,Siam Park,50.00\n" +
-                "Was836RhhFygtKSKlCif,Jeep Safari,80.00\n" +
-                "Was836RhhFygtKSKlCif,Submarine Safari,55.00\n" +
-                "euv4ft21bCrWb7dIyJpP,Capri Island Tour,90.00\n" +
-                "euv4ft21bCrWb7dIyJpP,Pompeii and Herculaneum Excursion,75.00\n" +
-                "euv4ft21bCrWb7dIyJpP,Amalfi Coast Drive,50.00\n" +
-                "i81oOypy1NnbI22C5N4L,Capri Island Tour,90.00\n" +
-                "i81oOypy1NnbI22C5N4L,Pompeii and Herculaneum Excursion,75.00\n" +
-                "i81oOypy1NnbI22C5N4L,Amalfi Coast Drive,50.00\n" +
-                "ir0dfyTwHtKI8nPxWqeC,Loro Parque,45.00\n" +
-                "ir0dfyTwHtKI8nPxWqeC,Teide National Park,30.00\n" +
-                "ir0dfyTwHtKI8nPxWqeC,Whale Watching Tour,50.00\n" +
-                "oObAhtoW5JD5xCxLYl9A,La Maddalena Archipelago,70.00\n" +
-                "oObAhtoW5JD5xCxLYl9A,Olbia City Tour,30.00\n" +
-                "oObAhtoW5JD5xCxLYl9A,Tavolara Island,55.00\n" +
-                "qARUCx54uknZuy661qmR,Jungfraujoch Excursion,180.00\n" +
-                "qARUCx54uknZuy661qmR,Trümmelbach Falls,25.00\n" +
-                "qARUCx54uknZuy661qmR,Lake Thun Cruise,45.00\n" +
-                "xEv9G5EZfBTzMMgJn7NC,Snorkeling Adventure,60.00\n" +
-                "xEv9G5EZfBTzMMgJn7NC,Quad Bike Safari,80.00\n" +
-                "xEv9G5EZfBTzMMgJn7NC,Camel Ride,45.00\n" +
-                "zrpqKXdm24hiuQQBT8Ic,Loro Parque,45.00\n" +
-                "zrpqKXdm24hiuQQBT8Ic,Teide National Park,30.00\n" +
-                "zrpqKXdm24hiuQQBT8Ic,Whale Watching Tour,50.00"
+        val data = "15vnRHtp7STpt9CH4crs,Private Island Tour,200.00\n" +
+                "15vnRHtp7STpt9CH4crs,Snorkeling Adventure,150.00\n" +
+                "15vnRHtp7STpt9CH4crs,Sunset Cruise,180.00\n" +
+                "BuTxfUaZx6Bq68E3WqaS,Desert Safari,250.00\n" +
+                "BuTxfUaZx6Bq68E3WqaS,Camel Riding Experience,100.00\n" +
+                "BuTxfUaZx6Bq68E3WqaS,Dinner in the Desert,150.00\n" +
+                "AHtesTOz1fuxG9qso9aT,Heritage City Tour,120.00\n" +
+                "AHtesTOz1fuxG9qso9aT,Cultural Walking Tour,80.00\n" +
+                "AHtesTOz1fuxG9qso9aT,Traditional Cuisine Tasting,100.00\n" +
+                "cSMb7p8eOytNb2GVsEQM,Beachside Sunset Cruise,75.00\n" +
+                "cSMb7p8eOytNb2GVsEQM,Water Sports Adventure,100.00\n" +
+                "cSMb7p8eOytNb2GVsEQM,Fishing Trip,120.00\n" +
+                "kX4zpVRYUyfJ2yt61zZi,City Skyline Helicopter Tour,300.00\n" +
+                "kX4zpVRYUyfJ2yt61zZi,City Guided Bus Tour,80.00\n" +
+                "kX4zpVRYUyfJ2yt61zZi,Boat Cruise with Dinner,150.00\n" +
+                "vkTs90svIcKOac3IqGbp,Cultural Heritage Walk,50.00\n" +
+                "vkTs90svIcKOac3IqGbp,Local Market Visit,30.00\n" +
+                "vkTs90svIcKOac3IqGbp,Art Gallery Tour,40.00\n" +
+                "G5I9tssnpGVjPTwBKVkR,Shopping Extravaganza,120.00\n" +
+                "G5I9tssnpGVjPTwBKVkR,Fashion District Tour,90.00\n" +
+                "G5I9tssnpGVjPTwBKVkR,Spa and Wellness Retreat,150.00\n" +
+                "ANgBAVD5wD5ngJZ2FwX4,Observation Deck Experience,80.00\n" +
+                "ANgBAVD5wD5ngJZ2FwX4,Dinner in the Sky,200.00\n" +
+                "ANgBAVD5wD5ngJZ2FwX4,Sunset Yoga Session,60.00\n" +
+                "CPpoaJgKbHlp9CIkjLiL,Gourmet Dining Tour,180.00\n" +
+                "CPpoaJgKbHlp9CIkjLiL,Cocktail Mixology Class,70.00\n" +
+                "CPpoaJgKbHlp9CIkjLiL,Food Tasting Experience,100.00\n" +
+                "kk3BQ3W1fxeAwsDD3sPd,Traditional Dhow Cruise,90.00\n" +
+                "kk3BQ3W1fxeAwsDD3sPd,Marina Sightseeing Boat Tour,70.00\n" +
+                "kk3BQ3W1fxeAwsDD3sPd,Scenic Kayaking Adventure,120.00\n" +
+                "s1ivqRhn2IS8RdVPFXW7,Downtown Heritage Walking Tour,75.00\n" +
+                "s1ivqRhn2IS8RdVPFXW7,Art and Culture Walk,60.00\n" +
+                "s1ivqRhn2IS8RdVPFXW7,Night Photography Tour,90.00\n" +
+                "yKEioTXXtgr7dzO0EZQB,Abra Boat Ride Experience,20.00\n" +
+                "yKEioTXXtgr7dzO0EZQB,Dhow Dinner Cruise,100.00\n" +
+                "yKEioTXXtgr7dzO0EZQB,Sunset Kayaking Trip,50.00\n" +
+                "Qu53tAQnduXBIIDz0R1K,Central Park Bicycle Tour,80.00\n" +
+                "Qu53tAQnduXBIIDz0R1K,Horse Carriage Ride,60.00\n" +
+                "Qu53tAQnduXBIIDz0R1K,Boat Tour to Statue of Liberty,100.00\n" +
+                "NYDEdaykBEPATYsyXQrM,Cultural Evening Show,100.00\n" +
+                "NYDEdaykBEPATYsyXQrM,Theater Performance,120.00\n" +
+                "NYDEdaykBEPATYsyXQrM,Jazz Night Experience,80.00\n" +
+                "yWtILzfKjdAi6j9zj5Zi,Dubai Fountain Lake Ride,50.00\n" +
+                "yWtILzfKjdAi6j9zj5Zi,Dhow Dinner Cruise,120.00\n" +
+                "yWtILzfKjdAi6j9zj5Zi,Sightseeing by Abra Boat,80.00\n" +
+                "t2P0sSRwlBWLUGd6FLI5,Indoor Skiing Adventure,150.00\n" +
+                "t2P0sSRwlBWLUGd6FLI5,Snowboarding Lesson,100.00\n" +
+                "t2P0sSRwlBWLUGd6FLI5,Snow Tubing Experience,80.00\n" +
+                "BMwzkDdEhuKjm8zWh2S3,Beachside Yoga Retreat,90.00\n" +
+                "BMwzkDdEhuKjm8zWh2S3,Beach Volleyball Tournament,50.00\n" +
+                "BMwzkDdEhuKjm8zWh2S3,Sunset Meditation Session,70.00\n" +
+                "9xYiYPXZeUMJpwGxMT6y,Boat Party Cruise,200.00\n" +
+                "9xYiYPXZeUMJpwGxMT6y,Water Sports Extravaganza,150.00\n" +
+                "9xYiYPXZeUMJpwGxMT6y,Beach BBQ Bonfire,180.00\n" +
+                "K8DYDFwBV7cnnSNXVUjm,Sunset Desert Horse Riding,120.00\n" +
+                "K8DYDFwBV7cnnSNXVUjm,Desert Photography Expedition,80.00\n" +
+                "K8DYDFwBV7cnnSNXVUjm,Bedouin Camp Experience,100.00\n" +
+                "ybHqSe1oZBM1FPyrg0ot,Beach Volleyball Tournament,30.00\n" +
+                "ybHqSe1oZBM1FPyrg0ot,Beach Party with DJ,50.00\n" +
+                "ybHqSe1oZBM1FPyrg0ot,Beach Olympics Challenge,40.00\n" +
+                "wvmqUZ4klboHl8wN58I1,Art Gallery Tour,50.00\n" +
+                "wvmqUZ4klboHl8wN58I1,Local Market Visit,30.00\n" +
+                "wvmqUZ4klboHl8wN58I1,Creative Workshop,40.00\n" +
+                "UnPaCx1uweomH41ivTeV,Island Hopping Adventure,180.00\n" +
+                "UnPaCx1uweomH41ivTeV,Beach Picnic Escape,150.00\n" +
+                "UnPaCx1uweomH41ivTeV,Snorkeling and Diving Experience,200.00\n" +
+                "c6LQJnpsWZO0li1a004I,Water Park Fun Day,100.00\n" +
+                "c6LQJnpsWZO0li1a004I,Poolside Relaxation,70.00\n" +
+                "c6LQJnpsWZO0li1a004I,Aqua Zumba Class,80.00\n" +
+                "kTcdoK2H5CMlIVEngR9F,Heritage Village Exploration,80.00\n" +
+                "kTcdoK2H5CMlIVEngR9F,Arabian Nights Dinner,120.00\n" +
+                "kTcdoK2H5CMlIVEngR9F,Camel Riding Adventure,100.00\n" +
+                "6sRYQurCl3oL6Jcqqtub,Parasailing Experience,120.00\n" +
+                "6sRYQurCl3oL6Jcqqtub,Jet Ski Adventure,80.00\n" +
+                "6sRYQurCl3oL6Jcqqtub,Banana Boat Ride,100.00\n" +
+                "FynyfUMb6Qq7p4DcB3pC,Sunset Dinner Cruise,150.00\n" +
+                "FynyfUMb6Qq7p4DcB3pC,Beachfront Yoga Session,90.00\n" +
+                "FynyfUMb6Qq7p4DcB3pC,Spa and Wellness Retreat,120.00\n" +
+                "4lJ7NjYyId6Obv9Y8qZS,Scuba Diving Adventure,200.00\n" +
+                "4lJ7NjYyId6Obv9Y8qZS,Snorkeling Safari,150.00\n" +
+                "4lJ7NjYyId6Obv9Y8qZS,Underwater Photography Workshop,180.00\n" +
+                "HfUOuAYbGpMqljrLQgBr,City Sightseeing Bus Tour,60.00\n" +
+                "HfUoUAYbGpMqljrLQgBr,Central Park Walking Tour,40.00\n" +
+                "HfUoUAYbGpMqljrLQgBr,Architectural Landmarks Tour,50.00\n" +
+                "3WB3soSk3Lznb9NXh16m,Volcano Hiking Excursion,150.00\n" +
+                "3WB3soSk3Lznb9NXh16m,Santorini Winery Tour,100.00\n" +
+                "3WB3soSk3Lznb9NXh16m,Scenic Photography Session,120.00\n" +
+                "rDBeLpOPgKpobWixySuK,Wine Tasting Tour,80.00\n" +
+                "rDBeLpOPgKpobWixySuK,Culinary Cooking Class,100.00\n" +
+                "rDBeLpOPgKpobWixySuK,Local Food Market Visit,60.00\n" +
+                "6JpwYnU6viucZ7VROIDW,Sunset Catamaran Cruise,180.00\n" +
+                "6JpwYnU6viucZ7VROIDW,Beach BBQ Party,120.00\n" +
+                "6JpwYnU6viucZ7VROIDW,Live Music and Dancing,150.00\n" +
+                "8kla0guCdTS3sWL8SSJA,ATV Off-Roading Adventure,120.00\n" +
+                "8kla0guCdTS3sWL8SSJA,Off-Road Buggy Ride,150.00\n" +
+                "8kla0guCdTS3sWL8SSJA,Sunset Desert Safari,180.00\n" +
+                "TA05xRaoxowWnUJvDqly,Food and Market Tour,90.00\n" +
+                "TA05xRaoxowWnUJvDqly,Cooking Workshop,70.00\n" +
+                "TA05xRaoxowWnUJvDqly,Culinary Walking Tour,80.00\n" +
+                "Ts1WkSLTQJbLDun0NUI1,Historical Walking Tour,70.00\n" +
+                "Ts1WkSLTQJbLDun0NUI1,Sunset Photo Tour,90.00\n" +
+                "Ts1WkSLTQJbLDun0NUI1,Local Cultural Experience,60.00\n" +
+                "p6DawIFjmVcFuQZzpnxY,Boat Rental and Fishing,200.00\n" +
+                "p6DawIFjmVcFuQZzpnxY,Relaxing Spa Retreat,150.00\n" +
+                "p6DawIFjmVcFuQZzpnxY,Beachfront Yoga Class,180.00\n" +
+                "IBnNUikWQ8oMW0LEJlED,Sunset Kayaking Tour,100.00\n" +
+                "IBnNUikWQ8oMW0LEJlED,Historical Cave Exploration,120.00\n" +
+                "IBnNUikWQ8oMW0LEJlED,Wine and Cheese Tasting,80.00\n" +
+                "TFifAFYagL2KQsRxPVZ0,Horseback Riding Excursion,150.00\n" +
+                "TFifAFYagL2KQsRxPVZ0,Vineyard Tour and Wine Tasting,100.00\n" +
+                "TFifAFYagL2KQsRxPVZ0,Scenic Photography Workshop,120.00\n" +
+                "yeZfhOG8F3cZrzxqenJo,Scenic Cycling Tour,80.00\n" +
+                "yeZfhOG8F3cZrzxqenJo,Hiking Adventure,100.00\n" +
+                "yeZfhOG8F3cZrzxqenJo,Local Wine Tasting,60.00\n" +
+                "iszuahkrszqbhB6oYI9j,Island Jeep Safari,120.00\n" +
+                "iszuahkrszqbhB6oYI9j,Scenic Off-Road Drive,80.00\n" +
+                "iszuahkrszqbhB6oYI9j,Traditional Village Visit,100.00\n" +
+                "pzQWMofOfN1efm8no2k1,Water Sports Adventure,180.00\n" +
+                "pzQWMofOfN1efm8no2k1,Relaxing Spa and Massage,120.00\n" +
+                "pzQWMofOfN1efm8no2k1,Boat Tour to Caldera,150.00\n" +
+                "sdbvu6waT7aN0n4tozhU,Hiking and Cliff Diving,100.00\n" +
+                "sdbvu6waT7aN0n4tozhU,Kayaking Adventure,80.00\n" +
+                "sdbvu6waT7aN0n4tozhU,Poolside Relaxation,90.00\n" +
+                "yE4gf7oDOgk4CLhMBmDe,Spa and Wellness Retreat,90.00\n" +
+                "yE4gf7oDOgk4CLhMBmDe,Relaxing Massage Therapy,70.00\n" +
+                "yE4gf7oDOgk4CLhMBmDe,Yoga and Meditation Session,80.00\n" +
+                "a1i7YArvWBCIbgJYGPW9,Local Cooking Class,70.00\n" +
+                "a1i7YArvWBCIbgJYGPW9,Art and Craft Workshop,50.00\n" +
+                "a1i7YArvWBCIbgJYGPW9,Historical Walking Tour,60.00\n" +
+                "e6t5BEVN41fxvflgRX90,Sunset Cruise with BBQ Dinner,150.00\n" +
+                "e6t5BEVN41fxvflgRX90,Poolside Cocktails and Snacks,80.00\n" +
+                "e6t5BEVN41fxvflgRX90,Evening Entertainment Show,100.00"
 
         val db = FirebaseFirestore.getInstance()
         val currentUserID = FirebaseAuth.getInstance().currentUser!!.uid
@@ -952,7 +1046,9 @@ class FirebaseHelper {
         val excursions = data.split("\n")
 
         for (excursion in excursions) {
+
             val excursionData = excursion.split(",").map { it.trim() }
+            println(excursionData)
             val destinationID = excursionData[0]
             val name = excursionData[1]
             val price = excursionData[2].toDouble()
@@ -975,6 +1071,125 @@ class FirebaseHelper {
         }
     }
 
+    fun deleteAccount(onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser!!.uid
+        val db = FirebaseFirestore.getInstance()
+
+        // Delete all bookings, saved, cards that contain the user's ID
+        CoroutineScope(Dispatchers.Main).launch {
+            db.collection("Bookings")
+                .whereEqualTo("user_id", uid)
+                .get()
+                .addOnSuccessListener { documents ->
+                    for (document in documents) {
+                        document.reference.delete()
+                    }
+
+                    CoroutineScope(Dispatchers.Main).launch {
+                        db.collection("Saved")
+                            .whereEqualTo("user_id", uid)
+                            .get()
+                            .addOnSuccessListener { documents ->
+                                for (document in documents) {
+                                    document.reference.delete()
+                                }
+
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    db.collection("Cards")
+                                        .whereEqualTo("user_id", uid)
+                                        .get()
+                                        .addOnSuccessListener { documents ->
+                                            for (document in documents) {
+                                                document.reference.delete()
+                                            }
+
+                                            // Delete the user's account
+                                            CoroutineScope(Dispatchers.Main).launch {
+                                                db.collection("Users")
+                                                    .document(uid)
+                                                    .delete()
+                                                    .addOnSuccessListener {
+                                                        println("User deleted successfully")
+
+                                                        // Delete the user's authentication
+                                                        CoroutineScope(Dispatchers.Main).launch {
+                                                            FirebaseAuth.getInstance().currentUser!!.delete()
+                                                                .addOnSuccessListener {
+                                                                    println("Authentication deleted successfully")
+                                                                    onSuccess()
+                                                                }
+                                                                .addOnFailureListener { e ->
+                                                                    println("Error deleting authentication: ${e.message}")
+                                                                    onFailure(e)
+                                                                }
+                                                        }
+                                                    }
+                                                    .addOnFailureListener { e ->
+                                                        println("Error deleting user: ${e.message}")
+                                                        onFailure(e)
+                                                    }
+                                            }
+                                        }
+                                        .addOnFailureListener { e ->
+                                            println("Error deleting cards: ${e.message}")
+                                            onFailure(e)
+                                        }
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                println("Error deleting saved: ${e.message}")
+                                onFailure(e)
+                            }
+                    }
+
+                }
+                .addOnFailureListener { e ->
+                    println("Error deleting bookings: ${e.message}")
+                    onFailure(e)
+                }
+        }
+    }
+
+        fun uploadCSVToDatabase(inputStream: InputStream) {
+            val db = FirebaseFirestore.getInstance()
+            val collectionRef = db.collection("Destinations")
+
+            val reader = BufferedReader(InputStreamReader(inputStream))
+            var line: String?
+
+            // Skip the header line
+            reader.readLine()
+
+            while (reader.readLine().also { line = it } != null) {
+                val values = line?.split(",")
+
+                val locations = mutableListOf<String>()
+                for (location in values?.get(1)?.split(" - ")!!) {
+                    locations.add(location)
+                }
+
+                println(values)
+
+                // create a map of the data from the CSV file using these as the keys (Name,Location,Price Per Adult,Price Per Child,Board Type,Discount,Peak Season,Rating) but as camlecase
+                val destination = hashMapOf(
+                    "name" to values?.get(0),
+                    "location" to locations,
+                    "pricePerAdult" to values?.get(2)?.toDouble(),
+                    "pricePerChild" to values?.get(3)?.toDouble(),
+                    "boardType" to values?.get(4),
+                    "discount" to values?.get(5)?.toDouble(),
+                    "peakSeason" to values?.get(6)?.toString(),
+                    "rating" to values?.get(7)?.toDouble()
+                )
+
+                // Upload the hotel object to the database
+                collectionRef.add(destination).addOnSuccessListener {
+                    println("${it.id} => ${values?.get(0)}")
+                }.addOnFailureListener { e ->
+                    println("Error adding hotel: ${e.message}")
+                }
+            }
+        }
 
 }
 object EncryptionUtils {

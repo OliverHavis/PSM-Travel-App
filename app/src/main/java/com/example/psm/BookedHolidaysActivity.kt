@@ -1,6 +1,7 @@
 package com.example.psm
 
 import Booking
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.WindowManager
@@ -58,7 +59,8 @@ class BookedHolidaysActivity : AppCompatActivity() {
      * Animates the back button
      */
     private fun finishWithAnimation() {
-        finish()
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
         overridePendingTransition(R.anim.slide_in_top, R.anim.slide_out_bottom)
     }
 
