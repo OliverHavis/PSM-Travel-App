@@ -1075,121 +1075,93 @@ class FirebaseHelper {
         val uid = FirebaseAuth.getInstance().currentUser!!.uid
         val db = FirebaseFirestore.getInstance()
 
-        // Delete all bookings, saved, cards that contain the user's ID
         CoroutineScope(Dispatchers.Main).launch {
-            db.collection("Bookings")
-                .whereEqualTo("user_id", uid)
-                .get()
-                .addOnSuccessListener { documents ->
-                    for (document in documents) {
-                        document.reference.delete()
-                    }
+            try {
+                // Delete all bookings associated with the user
+                val bookingsQuerySnapshot = db.collection("Bookings")
+                    .whereEqualTo("user_id", uid)
+                    .get().await()
 
-                    CoroutineScope(Dispatchers.Main).launch {
-                        db.collection("Saved")
-                            .whereEqualTo("user_id", uid)
-                            .get()
-                            .addOnSuccessListener { documents ->
-                                for (document in documents) {
-                                    document.reference.delete()
-                                }
-
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    db.collection("Cards")
-                                        .whereEqualTo("user_id", uid)
-                                        .get()
-                                        .addOnSuccessListener { documents ->
-                                            for (document in documents) {
-                                                document.reference.delete()
-                                            }
-
-                                            // Delete the user's account
-                                            CoroutineScope(Dispatchers.Main).launch {
-                                                db.collection("Users")
-                                                    .document(uid)
-                                                    .delete()
-                                                    .addOnSuccessListener {
-                                                        println("User deleted successfully")
-
-                                                        // Delete the user's authentication
-                                                        CoroutineScope(Dispatchers.Main).launch {
-                                                            FirebaseAuth.getInstance().currentUser!!.delete()
-                                                                .addOnSuccessListener {
-                                                                    println("Authentication deleted successfully")
-                                                                    onSuccess()
-                                                                }
-                                                                .addOnFailureListener { e ->
-                                                                    println("Error deleting authentication: ${e.message}")
-                                                                    onFailure(e)
-                                                                }
-                                                        }
-                                                    }
-                                                    .addOnFailureListener { e ->
-                                                        println("Error deleting user: ${e.message}")
-                                                        onFailure(e)
-                                                    }
-                                            }
-                                        }
-                                        .addOnFailureListener { e ->
-                                            println("Error deleting cards: ${e.message}")
-                                            onFailure(e)
-                                        }
-                                }
-                            }
-                            .addOnFailureListener { e ->
-                                println("Error deleting saved: ${e.message}")
-                                onFailure(e)
-                            }
-                    }
-
+                for (bookingDocument in bookingsQuerySnapshot.documents) {
+                    bookingDocument.reference.delete()
                 }
-                .addOnFailureListener { e ->
-                    println("Error deleting bookings: ${e.message}")
-                    onFailure(e)
+
+                // Delete all saved items associated with the user
+                val savedQuerySnapshot = db.collection("Saved")
+                    .whereEqualTo("user_id", uid)
+                    .get().await()
+
+                for (savedDocument in savedQuerySnapshot.documents) {
+                    savedDocument.reference.delete()
                 }
+
+                // Delete all cards associated with the user
+                val cardsQuerySnapshot = db.collection("Cards")
+                    .whereEqualTo("user_id", uid)
+                    .get().await()
+
+                for (cardDocument in cardsQuerySnapshot.documents) {
+                    cardDocument.reference.delete()
+                }
+
+                // Delete the user's account document
+                db.collection("Users")
+                    .document(uid)
+                    .delete().await()
+
+                // Delete the user's authentication
+                FirebaseAuth.getInstance().currentUser!!.delete().await()
+
+                println("User account and associated data deleted successfully")
+                onSuccess()
+            } catch (e: Exception) {
+                println("Error deleting user account: ${e.message}")
+                onFailure(e)
+            }
         }
     }
 
-        fun uploadCSVToDatabase(inputStream: InputStream) {
-            val db = FirebaseFirestore.getInstance()
-            val collectionRef = db.collection("Destinations")
 
-            val reader = BufferedReader(InputStreamReader(inputStream))
-            var line: String?
-
-            // Skip the header line
-            reader.readLine()
-
-            while (reader.readLine().also { line = it } != null) {
-                val values = line?.split(",")
-
-                val locations = mutableListOf<String>()
-                for (location in values?.get(1)?.split(" - ")!!) {
-                    locations.add(location)
-                }
-
-                println(values)
-
-                // create a map of the data from the CSV file using these as the keys (Name,Location,Price Per Adult,Price Per Child,Board Type,Discount,Peak Season,Rating) but as camlecase
-                val destination = hashMapOf(
-                    "name" to values?.get(0),
-                    "location" to locations,
-                    "pricePerAdult" to values?.get(2)?.toDouble(),
-                    "pricePerChild" to values?.get(3)?.toDouble(),
-                    "boardType" to values?.get(4),
-                    "discount" to values?.get(5)?.toDouble(),
-                    "peakSeason" to values?.get(6)?.toString(),
-                    "rating" to values?.get(7)?.toDouble()
-                )
-
-                // Upload the hotel object to the database
-                collectionRef.add(destination).addOnSuccessListener {
-                    println("${it.id} => ${values?.get(0)}")
-                }.addOnFailureListener { e ->
-                    println("Error adding hotel: ${e.message}")
-                }
-            }
-        }
+//    fun uploadCSVToDatabase(inputStream: InputStream) {
+//            val db = FirebaseFirestore.getInstance()
+//            val collectionRef = db.collection("Destinations")
+//
+//            val reader = BufferedReader(InputStreamReader(inputStream))
+//            var line: String?
+//
+//            // Skip the header line
+//            reader.readLine()
+//
+//            while (reader.readLine().also { line = it } != null) {
+//                val values = line?.split(",")
+//
+//                val locations = mutableListOf<String>()
+//                for (location in values?.get(1)?.split(" - ")!!) {
+//                    locations.add(location)
+//                }
+//
+//                println(values)
+//
+//                // create a map of the data from the CSV file using these as the keys (Name,Location,Price Per Adult,Price Per Child,Board Type,Discount,Peak Season,Rating) but as camlecase
+//                val destination = hashMapOf(
+//                    "name" to values?.get(0),
+//                    "location" to locations,
+//                    "pricePerAdult" to values?.get(2)?.toDouble(),
+//                    "pricePerChild" to values?.get(3)?.toDouble(),
+//                    "boardType" to values?.get(4),
+//                    "discount" to values?.get(5)?.toDouble(),
+//                    "peakSeason" to values?.get(6)?.toString(),
+//                    "rating" to values?.get(7)?.toDouble()
+//                )
+//
+//                // Upload the hotel object to the database
+//                collectionRef.add(destination).addOnSuccessListener {
+//                    println("${it.id} => ${values?.get(0)}")
+//                }.addOnFailureListener { e ->
+//                    println("Error adding hotel: ${e.message}")
+//                }
+//            }
+//        }
 
 }
 object EncryptionUtils {

@@ -52,6 +52,7 @@ class MoreFragment(activity: MyProfileActivity) : Fragment() {
         dialog.setPositiveButton("Yes") { dialog, which ->
             db.deleteAccount(
                 onSuccess = {
+                    Toast.makeText(activity, "Account deleted successfully", Toast.LENGTH_SHORT).show()
                     val intent = Intent(activity, MainActivity::class.java)
                     startActivity(intent)
                 },

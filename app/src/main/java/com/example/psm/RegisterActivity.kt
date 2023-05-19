@@ -48,12 +48,6 @@ class RegisterActivity : AppCompatActivity() {
 
             progressBar.visibility = View.VISIBLE
 
-            if (!termsCheckBox.isChecked) {
-                termsText.error = "You must agree to the terms and conditions"
-                termsText.requestFocus()
-                return@setOnClickListener
-            }
-
             // Validate email and password
             if (isAnyFieldEmpty(firstName, lastName, email, password)) {
                 showToast("Please fill in all the required fields.")
@@ -64,6 +58,11 @@ class RegisterActivity : AppCompatActivity() {
             } else if (!isValidPassword(password)) {
                 showToast("Invalid password.")
                 progressBar.visibility = View.INVISIBLE
+
+            } else if (!termsCheckBox.isChecked) {
+                termsText.error = "You must agree to the terms and conditions"
+                termsText.requestFocus()
+                return@setOnClickListener
             } else {
                 db.signUp(email, password, firstName, lastName, phone,
                     onSuccess = {

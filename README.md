@@ -30,6 +30,7 @@ Firebase Authentication is used to handle all user authentication. This includes
 Firebase Firestore is used to store all user data. This includes account details, saved locations, saved cards and bookings.
 The encrypted Data:
 - Account Details
+- Address Details
 - Card Details
 ### Storage
 Firebase Storage is used to store all images used in the app. This includes location images and excursion images.
